@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Akun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dashboard-container {
+      display: flex;
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .dashboard-sidebar {
+      width: 250px;
+      background: #f97316;
+      color: white;
+      padding: 24px;
+    }
+
+    .dashboard-sidebar h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .dashboard-sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .dashboard-sidebar li {
+      padding: 12px 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .dashboard-sidebar li.active,
+    .dashboard-sidebar li:hover {
+      color: #ffe0b2;
+    }
+
+    .dashboard-content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #f97316;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #ea580c;
+    }
+
+    .order-box,
+    .alamat-box {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+
+    #popupNotif {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #10b981;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      z-index: 9999;
+      font-size: 16px;
+      text-align: center;
+      min-width: 200px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .popup-show {
+      opacity: 1 !important;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .popup-hide {
+      opacity: 0 !important;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-sidebar">
+      <h2>Akun Saya</h2>
+      <ul>
+        <li onclick="showSection('profil')" class="active">📄 Profil</li>
+        <li onclick="window.location.href='pesanan saya.html'">📦 Pesanan</li>
+        <li onclick="showSection('alamat')">🏠 Alamat</li>
+      </ul>
+    </div>
+
+    <div class="dashboard-content">
+      <!-- PROFIL -->
+      <div id="profil" class="section active">
+        <h3>Profil</h3>
+        <h2>Hai, <span id="namaUserTampil">User</span> 👋</h2>
+        <label for="profilFoto">Foto Profil</label>
+        <input type="file" id="profilFoto" accept="image/*" style="display: none;">
+        <img id="fotoProfil" src="userprof.png" alt="Foto Profil"
+          style="width:80px; height:80px; border-radius:50%; margin-bottom:16px; cursor:pointer;">
+
+        <label for="profilNama">Nama Lengkap</label>
+        <input type="text" id="profilNama">
+
+        <label for="profilEmail">Email</label>
+        <input type="text" id="profilEmail" readonly>
+
+        <button onclick="simpanProfil()">Simpan</button>
+      </div>
+
+      <!-- PESANAN -->
+      <div id="pesanan" class="section">
+        <h3>Pesanan Saya</h3>
+        <div class="order-box">
+          <strong>Order #1001</strong>
+          <p>Tanggal: 20 Juni 2025</p>
+          <p>Status: Dikirim</p>
+        </div>
+        <div class="order-box">
+          <strong>Order #1002</strong>
+          <p>Tanggal: 21 Juni 2025</p>
+          <p>Status: Diproses</p>
+        </div>
+      </div>
+
+      <!-- ALAMAT -->
+      <div id="alamat" class="section">
+        <h3>Alamat Pengiriman</h3>
+        <label for="profilAlamat">Alamat Lengkap</label>
+        <textarea id="profilAlamat" rows="3"></textarea>
+        <button onclick="simpanAlamat()">Simpan Alamat</button>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Foto Profil -->
+  <div id="fotoModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div
+      style="background:#fff; padding:20px; border-radius:12px; text-align:center; position:relative; max-width:320px; width:90%;">
+      <img id="fotoModalPreview" src="" alt="Preview" style="width:100%; border-radius:12px; margin-bottom:16px;">
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button onclick="triggerGantiFoto()"
+          style="padding:8px 12px; background:#f97316; color:white; border:none; border-radius:8px;">Ganti Foto</button>
+        <button onclick="hapusFotoProfil()"
+          style="padding:8px 12px; background:#ef4444; color:white; border:none; border-radius:8px;">Hapus Foto</button>
+      </div>
+      <button onclick="tutupModalFoto()"
+        style="position:absolute; top:10px; right:12px; font-size:18px; background:none; border:none; color:#666;">&times;</button>
+    </div>
+  </div>
+
+  <div id="popupNotif" class="popup-hide">
+    <span id="popupMessage"></span>
+  </div>
+
+  <script>
+    const sectionEls = document.querySelectorAll(".section");
+    const navItems = document.querySelectorAll(".dashboard-sidebar li");
+
+    function showSection(id) {
+      sectionEls.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id)?.classList.add("active");
+
+      navItems.forEach(item => item.classList.remove("active"));
+      [...navItems].find(item => item.textContent.toLowerCase().includes(id))?.classList.add("active");
+    }
+
+    const namaInput = document.getElementById("profilNama");
+    const emailInput = document.getElementById("profilEmail");
+    const alamatInput = document.getElementById("profilAlamat");
+    const fotoProfil = document.getElementById("fotoProfil");
+    const fileInput = document.getElementById("profilFoto");
+
+    function loadProfil() {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+      const name = storedUser.name || storedUser.username || "User";
+      const email = storedUser.email || "";
+      const address = storedUser.address || "";
+      const photo = storedUser.photo || "userprof.png";
+
+      if (namaInput) namaInput.value = name;
+      if (emailInput) emailInput.value = email;
+      if (alamatInput) alamatInput.value = address;
+      if (fotoProfil) fotoProfil.src = photo;
+
+      document.getElementById("namaUserTampil").textContent = name;
+
+      storedUser.name = name;
+      storedUser.address = address;
+      storedUser.photo = photo;
+      localStorage.setItem("user", JSON.stringify(storedUser));
+    }
+
+    if (fotoProfil && fileInput) {
+      // Klik foto kecil → tampilkan modal
+      fotoProfil.addEventListener("click", () => {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const foto = user.photo || "userprof.png";
+        document.getElementById("fotoModalPreview").src = foto;
+        document.getElementById("fotoModal").style.display = "flex";
+      });
+
+      // Ganti foto
+      fileInput.addEventListener("change", function () {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const photoURL = e.target.result;
+          fotoProfil.src = photoURL;
+
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          storedUser.photo = photoURL;
+          localStorage.setItem("user", JSON.stringify(storedUser));
+
+          updateUserArray(storedUser);
+          showPopup("✅ Foto berhasil diperbarui!");
+          loadProfil();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function simpanProfil() {
+      const namaBaru = namaInput?.value.trim();
+      if (!namaBaru) return showPopup("❌ Nama tidak boleh kosong.");
+
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      storedUser.name = namaBaru;
+      localStorage.setItem("user", JSON.stringify(storedUser));
+
+      showPopup("✅ Nama berhasil diperbarui!");
+      updateUserArray(storedUser);
+      loadProfil();
+    }
+
+    function simpanAlamat() {
+      const alamatBaru = alamatInput?.value.trim();
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      storedUser.address = alamatBaru;
+      localStorage.setItem("user", JSON.stringify(storedUser));
+
+      showPopup("✅ Alamat berhasil diperbarui!");
+      loadProfil();
+      updateUserArray(storedUser);
+
+    }
+
+    function showPopup(msg) {
+      const popup = document.getElementById("popupNotif");
+      const msgSpan = document.getElementById("popupMessage");
+
+      msgSpan.textContent = msg;
+      popup.classList.remove("popup-hide");
+      popup.classList.add("popup-show");
+
+      setTimeout(() => {
+        popup.classList.remove("popup-show");
+        popup.classList.add("popup-hide");
+      }, 2000);
+    }
+
+    // Modal foto profil
+    function triggerGantiFoto() {
+      document.getElementById("profilFoto").click();
+      tutupModalFoto();
+    }
+
+    function hapusFotoProfil() {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      storedUser.photo = "userprof.png";
+      localStorage.setItem("user", JSON.stringify(storedUser));
+      loadProfil();
+      showPopup("✅ Foto berhasil dihapus!");
+      tutupModalFoto();
+    }
+
+    function tutupModalFoto() {
+      document.getElementById("fotoModal").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProfil);
+
+
+    function updateUserArray(updatedUser) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const index = users.findIndex(u => u.email === updatedUser.email); // cocokkan via email
+      if (index !== -1) {
+        users[index] = { ...users[index], ...updatedUser };
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>

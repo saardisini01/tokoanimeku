@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Produk Favorit</title>
+  <link rel="stylesheet" href="styleindex.css">
+</head>
+<body>
+  <header>
+    <h1>❤️ Produk Favorit Anda</h1>
+    <p><a href="index.html" style="color: #fff; text-decoration: underline;">← Kembali ke Beranda</a></p>
+  </header>
+
+  <section style="padding: 40px 20px;">
+    <div class="produk-container" id="favoritContainer"></div>
+  </section>
+
+  <script>
+    function tampilkanFavoritProduk() {
+      const favoritContainer = document.getElementById("favoritContainer");
+      const favoritList = JSON.parse(localStorage.getItem("favoritList") || "[]");
+      const semuaProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+
+      favoritContainer.innerHTML = "";
+
+      if (favoritList.length === 0) {
+        favoritContainer.innerHTML = "<p style='color:white;'>Belum ada produk favorit.</p>";
+        return;
+      }
+
+      favoritList.forEach(nama => {
+        const produk = semuaProduk.find(p => p.nama === nama);
+        if (!produk) return;
+
+        const imgSrc = produk.image?.startsWith("data:image") || produk.image?.startsWith("images/")
+          ? produk.image
+          : "images/" + produk.image;
+
+        const div = document.createElement("div");
+        div.className = "produk";
+        div.innerHTML = `
+          <a href="produk.html?produk=${encodeURIComponent(produk.nama)}" style="text-decoration:none; color:inherit;">
+            <img src="${imgSrc}" alt="${produk.nama}">
+            <h3>${produk.nama}</h3>
+            <p>Rp ${parseInt(produk.harga).toLocaleString("id-ID")}</p>
+          </a>
+        `;
+        favoritContainer.appendChild(div);
+      });
+    }
+
+    window.onload = tampilkanFavoritProduk;
+  </script>
+</body>
+</html>

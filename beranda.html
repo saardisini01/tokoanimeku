@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beranda | Toko Kaos Anime</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styleberanda.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Selamat Datang di Toko Kaos Anime</h1>
+        <p>Temukan koleksi kaos anime keren dengan harga terbaik!</p>
+    </header>
+
+    <nav style="display: flex; gap: 20px; align-items: center;">
+        <a href="form login.html#login" style="
+    color: #1f2937;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 12px;
+  ">Login</a>
+
+        <a href="form login.html#signup" style="
+    color: #1f2937;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 12px;
+  ">Daftar</a>
+
+        <a href="#" onclick="bukaTentangKami()" style="
+    color: #1f2937;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 12px;
+  ">Tentang Kami</a>
+    </nav>
+
+
+    <main>
+        <h2>Kami Menyediakan:</h2>
+        <p>Kaos anime eksklusif, desain custom, dan produk unggulan.</p>
+
+        <div class="cta">
+            <a href="form login.html#login">Masuk Sekarang</a>
+            <a href="index.html">Lihat Selengkapnya</a>
+        </div>
+
+        <footer>
+            <p>
+                &copy; 2025 Toko Kaos Keren |
+                Hubungi kami di Instagram
+                <a href="https://instagram.com/saar.disini" target="_blank"
+                    style="color:#f97316; text-decoration:underline;">
+                    @saar.disini
+                </a>
+            </p>
+        </footer>
+   <div id="popupTentangKami" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  max-width: 600px;
+  width: 90%;
+  z-index: 9999;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+">
+  <h2 style="font-size: 26px; color: #1f2937; margin-bottom: 10px;">Tentang Kami</h2>
+  <p style="font-size: 16px; color: #4b5563; margin-bottom: 20px;">
+    Toko Kaos Anime adalah tempat terbaik untuk mencari kaos dengan desain anime favoritmu.
+    Kami menyediakan kaos berkualitas tinggi dengan bahan premium, desain custom, dan harga terjangkau.
+  </p>
+  <button onclick="tutupTentangKami()" style="padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+    Tutup
+  </button>
+</div>
+
+<div id="overlayTentangKami" onclick="tutupTentangKami()" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+"></div>
+<script>
+function bukaTentangKami() {
+  const popup = document.getElementById("popupTentangKami");
+  const overlay = document.getElementById("overlayTentangKami");
+
+  popup.style.display = "block";
+  overlay.style.display = "block";
+
+  popup.classList.remove("popup-hide");
+  void popup.offsetWidth; // reset animation
+  popup.classList.add("popup-show");
+}
+
+function tutupTentangKami() {
+  const popup = document.getElementById("popupTentangKami");
+  const overlay = document.getElementById("overlayTentangKami");
+
+  popup.classList.remove("popup-show");
+  popup.classList.add("popup-hide");
+
+  setTimeout(() => {
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  }, 300); // durasi harus sesuai dengan animasi CSS
+}
+</script>
+
+
+</body>
+
+</html>

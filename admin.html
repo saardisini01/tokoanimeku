@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styleindex.css" />
+  <style>
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .admin-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right, #4f46e5, #6366f1);
+      color: white;
+      font-weight: bold;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .admin-button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+  </style>
+</head>
+
+<body style="background: #0f172a; color: #f3f4f6; font-family: 'Poppins', sans-serif;">
+  <div class="navbar"
+    style="background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+    <h2 style="margin: 0;">🛍️ Admin TokoKaos</h2>
+    <button onclick="logout()"
+      style="background:#ef4444;color:white;padding:8px 14px;border:none;border-radius:6px;font-weight:bold;cursor:pointer"
+      class="admin-button">Logout</button>
+  </div>
+
+  <div style="padding: 30px; max-width: 1200px; margin: auto; text-align: center;">
+    <h1 style="font-size: 32px; margin-bottom: 20px;" class="fade-in">📦 Panel Admin</h1>
+
+    <div class="admin-grid">
+      <a href="produk admin.html" class="admin-button">📦 Kelola Produk</a>
+      <a href="kelola_pesanan.html" class="admin-button">📝 Kelola Pesanan</a>
+      <a href="laporan.html" class="admin-button">📈 Laporan Penjualan</a>
+      <a href="voucheruser.html" class="admin-button">🎁 Kelola Voucher User</a>
+      <a href="bukti_user.html" class="admin-button">🧾 Bukti Pembayaran User</a>
+      <a href="pengeluaran_toko.html" class="admin-button">💸 Kelola Pengeluaran</a>
+      <a href="komentar_admin.html" class="admin-button">💬 Komentar Produk</a>
+
+    </div>
+
+
+    <div id="laporanContainer" style="margin-top: 40px;"></div>
+
+  </div>
+
+  <!-- Modal Tambah/Edit Produk tetap ada agar tambah produk masih bisa digunakan -->
+  <div id="produkModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:#1e293b; padding:30px; border-radius:12px; width:90%; max-width:500px; color:white;">
+      <h2 style="margin-bottom:16px;" id="modalTitle">Tambah Produk Baru</h2>
+      <input id="namaProduk" placeholder="Nama Produk" style="width:100%; margin-bottom:10px; padding:8px;" />
+      <input id="hargaProduk" placeholder="Harga (angka)" type="number"
+        style="width:100%; margin-bottom:10px; padding:8px;" />
+      <input id="ukuranProduk" placeholder="Ukuran (misal: S, M, L)"
+        style="width:100%; margin-bottom:10px; padding:8px;" />
+      <input id="gambarProduk" placeholder="Nama file gambar (contoh: img/kaos1.png atau URL)"
+        style="width:100%; margin-bottom:10px; padding:8px;" />
+      <textarea id="deskripsiProduk" placeholder="Deskripsi" rows="4"
+        style="width:100%; margin-bottom:10px; padding:8px;"></textarea>
+      <div style="text-align:right;">
+        <button id="tombolSimpan" onclick="simpanProdukBaru()"
+          style="background:#10b981; color:white; padding:8px 16px; border:none; border-radius:6px; margin-right:8px;"
+          class="admin-button">Tambah</button>
+        <button onclick="tutupModalProduk()"
+          style="background:#ef4444; color:white; padding:8px 16px; border:none; border-radius:6px;"
+          class="admin-button">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user?.role !== "admin") {
+        alert("Akses hanya untuk admin!");
+        window.location.href = "index.html";
+        return;
+      }
+      tampilkanPesanan();
+    };
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "form login.html";
+    }
+
+    function tambahProdukBaru() {
+      resetFormProduk();
+      document.getElementById("modalTitle").innerText = "Tambah Produk Baru";
+      document.getElementById("tombolSimpan").innerText = "Tambah";
+      document.getElementById("tombolSimpan").onclick = simpanProdukBaru;
+      document.getElementById("produkModal").style.display = "flex";
+    }
+
+    function tutupModalProduk() {
+      document.getElementById("produkModal").style.display = "none";
+      resetFormProduk();
+    }
+
+    function resetFormProduk() {
+      document.getElementById("namaProduk").value = "";
+      document.getElementById("hargaProduk").value = "";
+      document.getElementById("ukuranProduk").value = "";
+      document.getElementById("gambarProduk").value = "";
+      document.getElementById("deskripsiProduk").value = "";
+    }
+
+    function simpanProdukBaru() {
+      const nama = document.getElementById("namaProduk").value.trim();
+      const harga = parseInt(document.getElementById("hargaProduk").value);
+      const deskripsi = document.getElementById("deskripsiProduk").value.trim();
+      const ukuran = document.getElementById("ukuranProduk").value.trim();
+      const image = document.getElementById("gambarProduk").value.trim();
+
+      if (!nama || isNaN(harga) || !deskripsi || !ukuran || !image) {
+        alert("❌ Semua field harus diisi!");
+        return;
+      }
+
+      const produkBaru = { nama, harga, deskripsi, ukuran, image };
+      const produk = JSON.parse(localStorage.getItem("adminProduk")) || [];
+      produk.push(produkBaru);
+      localStorage.setItem("adminProduk", JSON.stringify(produk));
+
+      alert("✅ Produk berhasil ditambahkan!");
+      tutupModalProduk();
+    }
+
+    function toggleKomentarProduk(namaProduk) {
+      const status = JSON.parse(localStorage.getItem("nonaktifKomentar") || "{}");
+      status[namaProduk] = !status[namaProduk];
+      localStorage.setItem("nonaktifKomentar", JSON.stringify(status));
+      alert(`Komentar untuk "${namaProduk}" sekarang ${status[namaProduk] ? "❌ Nonaktif" : "✅ Aktif"}`);
+    }
+
+    function tambahVoucherUser() {
+      const email = document.getElementById("emailUserVoucher").value.trim();
+      const jumlah = parseInt(document.getElementById("jumlahVoucher").value);
+
+      if (!email || isNaN(jumlah) || jumlah <= 0) {
+        alert("❌ Masukkan email valid dan jumlah voucher yang benar.");
+        return;
+      }
+
+      const voucherData = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+      voucherData[email] = (voucherData[email] || 0) + jumlah;
+      localStorage.setItem("voucherUser", JSON.stringify(voucherData));
+
+      alert(`✅ Voucher berhasil ditambahkan. ${email} sekarang memiliki ${voucherData[email]} voucher.`);
+      document.getElementById("emailUserVoucher").value = "";
+      document.getElementById("jumlahVoucher").value = "";
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const bukti = localStorage.getItem("buktiPembayaran");
+      const container = document.getElementById("tampilkanBukti");
+      if (bukti && container) {
+        container.innerHTML = `
+      <img src="${bukti}" alt="Bukti Transfer" style="max-width:300px;border-radius:12px;margin-top:10px;" />
+    `;
+      } else {
+        container.innerHTML = "<p style='color:#fca5a5;'>Belum ada bukti transfer dikirim.</p>";
+      }
+    });
+
+  </script>
+</body>
+
+</html>

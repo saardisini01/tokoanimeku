@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Laporan Penjualan</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+      padding: 30px;
+      color: #1e293b;
+    }
+
+    h1 {
+      color: #0f172a;
+      margin-bottom: 24px;
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .back-btn {
+      background: linear-gradient(to right, #6366f1, #4f46e5);
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    th {
+      background-color: #4f46e5;
+      color: white;
+      text-align: left;
+      padding: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .total-box {
+      margin-top: 20px;
+      font-size: 17px;
+      font-weight: bold;
+      text-align: right;
+      color: #0f172a;
+    }
+
+    .total-box span {
+      color: #16a34a;
+    }
+
+    .rekap-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .rekap-card {
+      background: linear-gradient(to right, #4f46e5, #6366f1);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      flex: 1 1 200px;
+      max-width: 300px;
+    }
+
+    .rekap-card h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .rekap-card p {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .hapus-semua-btn {
+      background: #dc2626;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .hapus-semua-btn:hover {
+      transform: scale(1.05);
+    }
+
+    #popupAlert {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #10b981;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    #popupKonfirmasi {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1e293b;
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      z-index: 10000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
+    .filter-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-controls input,
+    .filter-controls select,
+    .filter-controls button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+    }
+
+    .filter-controls button {
+      background: #4f46e5;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="back-btn" onclick="window.location.href='admin.html'">← Kembali ke Admin</button>
+  <h1>📊 Laporan Penjualan</h1>
+
+  <div class="filter-controls">
+    <label for="inputTanggalMulai">Tanggal Mulai:</label>
+    <input type="date" id="inputTanggalMulai">
+
+    <label for="inputTanggalSelesai">Tanggal Selesai:</label>
+    <input type="date" id="inputTanggalSelesai">
+
+    <button onclick="renderLaporan()">Cari Laporan</button>
+  </div>
+
+  <div style="text-align:right; margin-bottom: 16px;">
+    <button onclick="hapusSemuaLaporan()" class="hapus-semua-btn">🗑️ Hapus Semua Laporan</button>
+  </div>
+
+  <div id="laporanContainer"></div>
+
+  <div class="rekap-container">
+    <div class="rekap-card">
+      <h3>Pendapatan Harian</h3>
+      <p id="totalHarian">Rp 0</p>
+    </div>
+    <div class="rekap-card">
+      <h3>Pendapatan Mingguan</h3>
+      <p id="totalMingguan">Rp 0</p>
+    </div>
+    <div class="rekap-card">
+      <h3>Pendapatan Bulanan</h3>
+      <p id="totalBulanan">Rp 0</p>
+    </div>
+    <div class="rekap-card">
+      <h3>Pendapatan Tahunan</h3>
+      <p id="totalTahunan">Rp 0</p>
+    </div>
+  </div>
+
+
+  <div class="total-box" id="labaBox"></div>
+
+  <div id="popupAlert"></div>
+  <div id="popupKonfirmasi">
+    <p id="pesanKonfirmasi">Apakah yakin ingin menghapus?</p>
+    <button onclick="lanjutHapusLaporan()"
+      style="margin-right: 10px; background:#ef4444; color:white; border:none; padding:8px 14px; border-radius:6px;">Ya</button>
+    <button onclick="batalHapus()"
+      style="background:#94a3b8; color:white; border:none; padding:8px 14px; border-radius:6px;">Batal</button>
+  </div>
+
+  <script>
+    const container = document.getElementById("laporanContainer");
+    let indexYangMauDihapus = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // populateTahunFilter(); // Hilangkan pemanggilan ini
+      renderLaporan();
+    });
+
+    // function populateTahunFilter() { // Hilangkan fungsi ini
+    //   const filterTahun = document.getElementById("filterTahun");
+    //   const currentYear = new Date().getFullYear();
+    //   for (let i = currentYear; i >= 2020; i--) {
+    //     const option = document.createElement("option");
+    //     option.value = i;
+    //     option.textContent = i;
+    //     filterTahun.appendChild(option);
+    //   }
+    //   filterTahun.value = currentYear;
+    // }
+
+    function renderLaporan() {
+      const semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const laporanPenjualan = semuaPesanan.filter(item => item.status === "Selesai"); // Hanya yang sudah selesai
+
+      const inputTanggalMulai = document.getElementById("inputTanggalMulai").value;
+      const inputTanggalSelesai = document.getElementById("inputTanggalSelesai").value;
+      // const filterBulan = document.getElementById("filterBulan").value; // Hilangkan variabel ini
+      // const filterTahun = document.getElementById("filterTahun").value; // Hilangkan variabel ini
+
+      let filteredLaporan = laporanPenjualan.filter(item => {
+        const itemDate = new Date(item.waktu); // Gunakan item.waktu yang lebih akurat
+        
+        let passFilter = true;
+
+        // Filter Tanggal Mulai
+        if (inputTanggalMulai) {
+          const selectedStartDate = new Date(inputTanggalMulai);
+          selectedStartDate.setHours(0, 0, 0, 0); 
+          if (itemDate < selectedStartDate) {
+            passFilter = false;
+          }
+        }
+
+        // Filter Tanggal Selesai
+        if (inputTanggalSelesai) {
+          const selectedEndDate = new Date(inputTanggalSelesai);
+          selectedEndDate.setHours(23, 59, 59, 999);
+          if (itemDate > selectedEndDate) {
+            passFilter = false;
+          }
+        }
+        
+        // Filter bulan dan tahun dihilangkan
+        // if (!inputTanggalMulai && !inputTanggalSelesai && filterBulan !== "") {
+        //   if (itemMonth !== parseInt(filterBulan)) {
+        //     passFilter = false;
+        //   }
+        // }
+        // if (!inputTanggalMulai && !inputTanggalSelesai && filterTahun) {
+        //   if (itemYear !== parseInt(filterTahun)) {
+        //     passFilter = false;
+        //   }
+        // }
+        return passFilter;
+      });
+
+      let totalPemasukan = 0;
+      container.innerHTML = "";
+
+      if (filteredLaporan.length === 0) {
+        container.innerHTML = "<p>Tidak ada data laporan penjualan yang sesuai filter.</p>";
+      } else {
+        const table = document.createElement("table");
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Pembeli</th>
+              <th>Produk</th>
+              <th>Ukuran</th>
+              <th>Jumlah</th>
+              <th>Harga Satuan</th>
+              <th>Subtotal</th>
+              <th>Tanggal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="laporanBody"></tbody>
+        `;
+        container.appendChild(table);
+
+        const tbody = document.getElementById("laporanBody");
+
+        filteredLaporan.forEach((item, i) => {
+          const subtotal = item.harga * item.qty;
+          totalPemasukan += subtotal;
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${item.pembeli || item.namaPembeli || '-'}</td>
+            <td>${item.nama}</td>
+            <td>${item.ukuran}</td>
+            <td>${item.qty}</td>
+            <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
+            <td>Rp ${subtotal.toLocaleString('id-ID')}</td>
+            <td>${new Date(item.waktu).toLocaleString('id-ID')}</td>
+            <td><button onclick="hapusLaporan(${i})" style="background:#ef4444;color:white;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;">Hapus</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        const totalBox = document.createElement("div");
+        totalBox.className = "total-box";
+        totalBox.innerHTML = `Total Pemasukan (Filter): <span>Rp ${totalPemasukan.toLocaleString("id-ID")}</span>`;
+        container.appendChild(totalBox);
+      }
+
+      // Rekap pendapatan - Logika ini tetap menggunakan semua laporan "Selesai" tanpa filter tanggal,
+      // karena rekap harian, mingguan, bulanan, tahunan biasanya berdasarkan data keseluruhan saat ini.
+      const now = new Date();
+      let totalHarian = 0, totalMingguan = 0, totalBulanan = 0, totalTahunan = 0;
+
+      laporanPenjualan.forEach(item => {
+        const tanggalItem = new Date(item.waktu);
+        const nilai = item.harga * item.qty;
+
+        // Pendapatan Harian (untuk tanggal saat ini)
+        if (tanggalItem.getDate() === now.getDate() &&
+            tanggalItem.getMonth() === now.getMonth() &&
+            tanggalItem.getFullYear() === now.getFullYear()) {
+          totalHarian += nilai;
+        }
+
+        // Pendapatan Mingguan (7 hari terakhir dari tanggal saat ini)
+        const sevenDaysAgo = new Date(now);
+        sevenDaysAgo.setDate(now.getDate() - 7); // Set to 7 days before today, maintaining time
+
+        if (tanggalItem >= sevenDaysAgo && tanggalItem <= now) {
+            totalMingguan += nilai;
+        }
+
+        // Pendapatan Bulanan (untuk bulan saat ini)
+        if (tanggalItem.getMonth() === now.getMonth() &&
+            tanggalItem.getFullYear() === now.getFullYear()) {
+          totalBulanan += nilai;
+        }
+
+        // Pendapatan Tahunan (untuk tahun saat ini)
+        if (tanggalItem.getFullYear() === now.getFullYear()) {
+          totalTahunan += nilai;
+        }
+      });
+
+      document.getElementById("totalHarian").textContent = "Rp " + totalHarian.toLocaleString("id-ID");
+      document.getElementById("totalMingguan").textContent = "Rp " + totalMingguan.toLocaleString("id-ID");
+      document.getElementById("totalBulanan").textContent = "Rp " + totalBulanan.toLocaleString("id-ID");
+      document.getElementById("totalTahunan").textContent = "Rp " + totalTahunan.toLocaleString("id-ID");
+
+      // Hitung pengeluaran dan laba bersih (dari total pemasukan keseluruhan yang sudah selesai)
+      const pengeluaran = JSON.parse(localStorage.getItem("pengeluaranToko") || "[]");
+      const totalPengeluaran = pengeluaran.reduce((sum, p) => sum + parseInt(p.jumlah || 0), 0);
+      
+      const totalPemasukanKeseluruhan = laporanPenjualan.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+      const labaBersih = totalPemasukanKeseluruhan - totalPengeluaran;
+
+      document.getElementById("labaBox").innerHTML = `
+        Total Pengeluaran: <span style="color:#dc2626;">Rp ${totalPengeluaran.toLocaleString("id-ID")}</span><br>
+        Laba Bersih: <span style="color:#0ea5e9;">Rp ${labaBersih.toLocaleString("id-ID")}</span>
+      `;
+    }
+
+    // Popup & hapus
+    function hapusLaporan(i) {
+      const semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const laporanPenjualan = semuaPesanan.filter(item => item.status === "Selesai");
+      
+      const itemToDelete = laporanPenjualan[i];
+      if (!itemToDelete) return;
+
+      const originalIndex = semuaPesanan.findIndex(p => 
+          p.nama === itemToDelete.nama && 
+          p.ukuran === itemToDelete.ukuran && 
+          p.waktu === itemToDelete.waktu &&
+          p.qty === itemToDelete.qty
+      );
+
+      if (originalIndex > -1) {
+          indexYangMauDihapus = originalIndex;
+          document.getElementById("pesanKonfirmasi").textContent = `Apakah yakin ingin menghapus laporan pesanan ${itemToDelete.nama} dari ${itemToDelete.pembeli}?`;
+          document.getElementById("popupKonfirmasi").style.display = "block";
+      } else {
+          tampilkanPopup("❌ Laporan tidak ditemukan.", "#dc2626");
+      }
+    }
+
+    function lanjutHapusLaporan() {
+      if (indexYangMauDihapus === null) return;
+      let semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      semuaPesanan.splice(indexYangMauDihapus, 1);
+      localStorage.setItem("pesananPending", JSON.stringify(semuaPesanan));
+      document.getElementById("popupKonfirmasi").style.display = "none";
+      tampilkanPopup("✅ Laporan berhasil dihapus!");
+      indexYangMauDihapus = null;
+      setTimeout(() => renderLaporan(), 1500);
+    }
+
+    function hapusSemuaLaporan() {
+      if (!confirm("⚠️ Yakin ingin menghapus semua laporan penjualan yang berstatus 'Selesai'? Ini tidak dapat dibatalkan!")) return;
+      
+      let semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      semuaPesanan = semuaPesanan.filter(item => item.status !== "Selesai");
+      localStorage.setItem("pesananPending", JSON.stringify(semuaPesanan));
+
+      tampilkanPopup("🗑️ Semua laporan 'Selesai' berhasil dihapus!", "#ef4444");
+      setTimeout(() => renderLaporan(), 1500);
+    }
+
+    function batalHapus() {
+      indexYangMauDihapus = null;
+      document.getElementById("popupKonfirmasi").style.display = "none";
+    }
+
+    function tampilkanPopup(pesan, warna = '#10b981') {
+      const popup = document.getElementById("popupAlert");
+      popup.textContent = pesan;
+      popup.style.background = warna;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 2000);
+    }
+  </script>
+
+</body>
+
+</html>

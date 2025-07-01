@@ -1,0 +1,26 @@
+.keranjang-button,
+.beli-button,
+.favorit-btn {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.keranjang-button {
+  background: #f97316;
+  color: white;
+}
+
+.beli-button {
+  background: #ef4444;
+  color: white;
+}
+
+.favorit-btn {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}

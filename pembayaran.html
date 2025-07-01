@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Pembayaran</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #ef4444;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .alamat,
+    .produk-item,
+    .total,
+    .diskon {
+      background: #fafafa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .produk-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .produk-item div {
+      max-width: 70%;
+    }
+
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+      color: #ff7b00;
+    }
+
+    .btn-bayar {
+      background-color: #ef4444;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-bayar:hover {
+      background-color: #dc2626;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    #popupSukses {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      /* default sembunyi */
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #popupSukses.show {
+      display: flex;
+      /* munculkan popup di tengah */
+    }
+
+    .popup-content {
+      background: #10b981;
+      color: white;
+      padding: 20px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+
+    .voucher-ongkir-box {
+      background: #fef9c3;
+      border: 2px solid #facc15;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
+    }
+
+    .voucher-ongkir-box:hover {
+      background: #fef08a;
+    }
+
+    .voucher-checkbox {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .voucher-checkbox input[type="checkbox"] {
+      display: none;
+    }
+
+    .custom-check {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #facc15;
+      border-radius: 6px;
+      margin-right: 14px;
+      background: white;
+      position: relative;
+    }
+
+    .voucher-checkbox input[type="checkbox"]:checked+.custom-check::after {
+      content: '✔';
+      position: absolute;
+      top: 1px;
+      left: 5px;
+      font-size: 16px;
+      color: #15803d;
+      font-weight: bold;
+    }
+
+    .voucher-info {
+      font-size: 14px;
+      color: #444;
+    }
+
+    #popupNotif {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+    }
+
+    #popupNotif.active {
+      display: flex;
+    }
+
+    #popupNotif .popup-content {
+      background: #f97316;
+      color: #fff;
+      padding: 20px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 80%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>🏍️ Pembayaran</h2>
+
+    <div class="section">
+      <div class="section-title">Alamat Pengiriman</div>
+
+
+      <div class="alamat">
+        <label>Nama: <input type="text" id="inputNama" /></label><br><br>
+        <label>No. Telp: <input type="text" id="inputTelp" /></label><br><br>
+        <label>Alamat: <textarea id="inputAlamat" rows="3"></textarea></label>
+      </div>
+    </div>
+
+    <div id="popupSukses">
+      <div class="popup-content">✅ Pembayaran berhasil!</div>
+    </div>
+
+
+
+    <div class="section-title">Voucher Ongkir</div>
+    <div class="voucher-ongkir-box">
+      <label class="voucher-checkbox">
+        <input type="checkbox" id="pakaiVoucherOngkir" onchange="cekVoucherDipilih()" />
+        <span class="custom-check"></span>
+        <div class="voucher-info">
+          <strong>Gunakan Voucher Gratis Ongkir</strong><br>
+          <small id="voucherCount" style="color: #ef4444;">Gratis Ongkir: 5/5 Tersisa</small>
+        </div>
+      </label>
+    </div>
+
+
+
+
+
+    <div class="section">
+      <div class="section">
+        <div class="section-title">Metode Pembayaran</div>
+        <div class="alamat">
+          <select id="metodePembayaran" onchange="tampilkanInputTambahan()">
+            <option value="Transfer Bank">Transfer Bank</option>
+            <option value="COD">COD (Bayar di Tempat)</option>
+            <option value="E-Wallet">E-Wallet (OVO, DANA, dll)</option>
+          </select>
+          <div id="opsiTambahan" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+
+
+    </div>
+    <div class="section">
+      <div class="section-title">Ekspedisi</div>
+      <div class="alamat">
+        <select id="pilihEkspedisi">
+          <option value="">-- Pilih Ekspedisi --</option>
+          <option value="JNE">JNE</option>
+          <option value="J&T">J&T</option>
+          <option value="SiCepat">SiCepat</option>
+          <option value="AnterAja">AnterAja</option>
+        </select>
+      </div>
+      <div class="section">
+        <div class="section-title">Voucher toko</div>
+        <div class="alamat">
+          <select id="voucherToko" onchange="updateTotal()">
+            <option value="">-- Pilih Voucher toko --</option>
+            <option value="diskon2000">Diskon Rp 2.000 (Min. Rp 100.000)</option>
+            <option value="diskon5000">Diskon Rp 5.000 (Min. Rp 200.000)</option>
+            <option value="diskon10000">Diskon Rp 10.000 (Min. Rp 300.000)</option>
+            <option value="diskon15000">Diskon Rp 15.000 (Min. Rp 400.000)</option>
+            <option value="diskon25000">Diskon Rp 25.000 (Min. Rp 500.000)</option>
+          </select>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Produk</div>
+      <div id="daftarProduk"></div>
+    </div>
+    <div class="total">Ongkir: <span id="ongkirDisplay">Rp 0</span></div>
+    <div class="total">Total: <span id="totalHarga">Rp 0</span></div>
+    <button class="btn-bayar" onclick="bayarSekarang()">Bayar Sekarang</button>
+  </div>
+  <div id="popupNotif">
+    <div class="popup-content" id="popupNotifContent">Pesan Notifikasi</div>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("checkoutItems") || "[]");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const allProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+    const adminProduk = JSON.parse(localStorage.getItem("adminProduk") || "[]");
+    const daftar = document.getElementById("daftarProduk");
+    const totalHargaEl = document.getElementById("totalHarga");
+    const ongkirEl = document.getElementById("ongkirDisplay");
+
+    let total = 0;
+    let ongkir = 0;
+    let totalSetelahPromo = 0;
+
+    data.forEach(item => {
+      const produkEl = document.createElement("div");
+      produkEl.className = "produk-item";
+
+      const subtotal = item.harga * item.qty;
+      const ukuran = item.ukuran || "-";
+      const gambar = item.image || "images/default-image.png";
+
+      produkEl.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="${gambar}" alt="${item.nama}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;">
+      <div>
+        <strong>${item.nama}</strong><br>
+        Ukuran: ${ukuran}<br>
+        Jumlah: ${item.qty}<br>
+        Harga: Rp ${parseInt(item.harga).toLocaleString("id-ID")}
+      </div>
+    </div>
+    <div style="text-align:right; font-weight:bold;">Rp ${subtotal.toLocaleString("id-ID")}</div>
+  `;
+
+      daftar.appendChild(produkEl);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Siapkan default voucher user
+      const userEmail = user.email || "guest";
+      const voucherUser = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+      if (!(userEmail in voucherUser)) {
+        voucherUser[userEmail] = 5;
+        localStorage.setItem("voucherUser", JSON.stringify(voucherUser));
+      }
+
+      const sisa = (JSON.parse(localStorage.getItem("voucherUser") || "{}"))[user.email || "guest"] || 0;
+      if (sisa <= 0) {
+        document.getElementById("pakaiVoucherOngkir").checked = false;
+      }
+
+
+      // Isi data user ke form
+      document.getElementById("inputNama").value = user.name || "";
+      document.getElementById("inputTelp").value = user.phone || "";
+      document.getElementById("inputAlamat").value = user.address || "";
+
+      tampilkanSisaVoucher();
+      tampilkanInputTambahan();
+      updateTotal();
+
+      document.getElementById("inputAlamat").addEventListener("input", updateTotal);
+      document.getElementById("pilihEkspedisi").addEventListener("change", updateTotal);
+      document.getElementById("metodePembayaran").addEventListener("change", tampilkanInputTambahan);
+
+      document.querySelectorAll("input[name='voucherOngkir']").forEach(radio => {
+        radio.addEventListener("change", () => {
+          updateTotal();
+          tampilkanSisaVoucher();
+        });
+      });
+    });
+
+    function hitungOngkir() {
+      const alamat = (document.getElementById("inputAlamat").value || "").toLowerCase();
+      const ekspedisi = document.getElementById("pilihEkspedisi").value;
+      let dasar = 0;
+
+      if (alamat.includes("jakarta") || alamat.includes("depok") || alamat.includes("bekasi")) dasar = 10000;
+      else if (alamat.includes("bandung") || alamat.includes("surabaya")) dasar = 20000;
+      else if (alamat.length > 0) dasar = 35000;
+
+      switch (ekspedisi) {
+        case "JNE": ongkir = dasar; break;
+        case "J&T": ongkir = dasar - 2000; break;
+        case "SiCepat": ongkir = dasar - 5000; break;
+        case "AnterAja": ongkir = dasar - 10000; break;
+        default: ongkir = 0;
+      }
+
+      if (ongkir < 0) ongkir = 0;
+    }
+
+function updateTotal() {
+  total = 0;
+  const semuaProduk = [...allProduk, ...adminProduk];
+
+  // Hitung total belanja
+  data.forEach(item => {
+    const produkAsli = semuaProduk.find(p => p.nama === item.nama);
+    const harga = produkAsli ? parseInt(produkAsli.harga) : (item.harga || 50000);
+    const subtotal = harga * item.qty;
+    total += subtotal;
+  });
+
+  // Hitung ongkir
+  hitungOngkir();
+  const promo = document.getElementById("pakaiVoucherOngkir").checked ? "freeongkir" : "none";
+  const ongkirDipakai = promo === "freeongkir" ? 0 : ongkir;
+
+  // Total awal
+  totalSetelahPromo = total + ongkirDipakai;
+
+  // Voucher toko
+  const voucherSelect = document.getElementById("voucherToko").value;
+  const voucherNote = document.getElementById("voucherNote");
+  let diskon = 0;
+
+  // Cek dan terapkan voucher
+  if (voucherSelect === "diskon2000" && total >= 100000) {
+    diskon = 2000;
+    if (voucherNote) voucherNote.textContent = "✅ Diskon Rp 2.000 diterapkan";
+    tampilkanPopupPesan("✅ Diskon Rp 2.000 berhasil digunakan!");
+  } else if (voucherSelect === "diskon5000" && total >= 200000) {
+    diskon = 5000;
+    if (voucherNote) voucherNote.textContent = "✅ Diskon Rp 5.000 diterapkan";
+    tampilkanPopupPesan("✅ Diskon Rp 5.000 berhasil digunakan!");
+  } else if (voucherSelect === "diskon10000" && total >= 300000) {
+    diskon = 10000;
+    if (voucherNote) voucherNote.textContent = "✅ Diskon Rp 10.000 diterapkan";
+    tampilkanPopupPesan("✅ Diskon Rp 10.000 berhasil digunakan!");
+  } else if (voucherSelect === "diskon15000" && total >= 400000) {
+    diskon = 15000;
+    if (voucherNote) voucherNote.textContent = "✅ Diskon Rp 15.000 diterapkan";
+    tampilkanPopupPesan("✅ Diskon Rp 15.000 berhasil digunakan!");
+  } else if (voucherSelect === "diskon25000" && total >= 500000) {
+    diskon = 25000;
+    if (voucherNote) voucherNote.textContent = "✅ Diskon Rp 25.000 diterapkan";
+    tampilkanPopupPesan("✅ Diskon Rp 25.000 berhasil digunakan!");
+  } else if (voucherSelect !== "") {
+    if (voucherNote) voucherNote.textContent = null;
+    if (!document.getElementById("popupNotif").classList.contains("active")) {
+      tampilkanPopupPesan("❌ Total belanja belum memenuhi syarat minimum.");
+    }
+  } else {
+    if (voucherNote) voucherNote.textContent = null;
+  }
+
+  // Hitung total akhir setelah diskon
+  totalSetelahPromo -= diskon;
+  if (totalSetelahPromo < 0) totalSetelahPromo = 0;
+
+  // Tampilkan ke layar
+  totalHargaEl.textContent = "Rp " + totalSetelahPromo.toLocaleString("id-ID");
+  if (ongkirEl) ongkirEl.textContent = "Rp " + ongkirDipakai.toLocaleString("id-ID");
+}
+
+    function tampilkanSisaVoucher() {
+      const userEmail = user.email || "guest";
+      const voucherData = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+      const sisa = voucherData[userEmail] || 0;
+      const maksimal = 5;
+      const display = document.getElementById("voucherCount");
+      if (display) {
+        display.textContent = `Gratis Ongkir: ${sisa}/${maksimal} Tersisa`;
+      }
+    }
+
+    function tampilkanInputTambahan() {
+      const metode = document.getElementById("metodePembayaran").value;
+      const container = document.getElementById("opsiTambahan");
+      if (metode === "Transfer Bank") {
+        container.innerHTML = `
+    <label>Pilih Bank:
+      <select id="selectBank" onchange="tampilkanRekeningTujuan()">
+        <option value="">-- Pilih Bank --</option>
+        <option value="BCA">BCA</option>
+        <option value="BRI">BRI</option>
+        <option value="Mandiri">Mandiri</option>
+        <option value="BNI">BNI</option>
+      </select>
+    </label><br><br>
+    <div id="rekeningTujuan"></div><br>
+    <label>📎 Upload Bukti Transfer Bank:
+      <input type="file" id="buktiTransfer" accept="image/*" />
+    </label>
+  `;
+      } else if (metode === "E-Wallet") {
+        container.innerHTML = `
+    <label>Pilih E-Wallet:
+      <select id="selectWallet" onchange="tampilkanInfoWallet()">
+        <option value="">-- Pilih E-Wallet --</option>
+        <option value="OVO">OVO</option>
+        <option value="DANA">DANA</option>
+        <option value="GoPay">GoPay</option>
+      </select>
+    </label><br><br>
+    <div id="infoWallet"></div><br>
+    <label>📎 Upload Bukti Transfer E-Wallet:
+      <input type="file" id="buktiTransfer" accept="image/*" />
+    </label>
+  `;
+      } else {
+        container.innerHTML = "";
+      }
+    }
+
+    function tampilkanRekeningTujuan() {
+      const bank = document.getElementById("selectBank").value;
+      const rekeningTujuan = {
+        BCA: "1234567890 (a.n. PT Toko Kaos Anime)",
+        BRI: "0987654321 (a.n. PT Toko Kaos Anime)",
+        Mandiri: "1357911131 (a.n. PT Toko Kaos Anime)",
+        BNI: "2468135790 (a.n. PT Toko Kaos Anime)"
+      };
+      document.getElementById("rekeningTujuan").innerHTML = bank ? `<strong>Transfer ke:</strong><br>${rekeningTujuan[bank]}` : "";
+    }
+
+    function tampilkanInfoWallet() {
+      const wallet = document.getElementById("selectWallet").value;
+      const info = {
+        OVO: { nomor: "0812-3456-7890", qris: "ovo.jpg" },
+        DANA: { nomor: "0857-1234-5678", qris: "dana.jpg" },
+        GoPay: { nomor: "0813-9876-5432", qris: "gopay.jpg" }
+      };
+      const el = document.getElementById("infoWallet");
+      el.innerHTML = wallet && info[wallet] ? `
+    <div style="text-align: center;">
+      <img src="${info[wallet].qris}" style="max-width:200px;border-radius:12px;margin-bottom:10px;">
+      <p><strong>📱 Nomor Admin ${wallet}:</strong><br><span style="color:#dc2626;">${info[wallet].nomor}</span></p>
+    </div>` : "";
+    }
+
+    function kurangiVoucherJikaPakai() {
+      const promo = document.getElementById("pakaiVoucherOngkir").checked ? "freeongkir" : "none";
+      if (promo !== "freeongkir") return;
+
+      const userEmail = user.email || "guest";
+      const voucherData = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+
+      if (voucherData[userEmail] > 0) {
+        voucherData[userEmail] -= 1;
+        localStorage.setItem("voucherUser", JSON.stringify(voucherData));
+      }
+    }
+
+
+    function bayarSekarang() {
+      const nama = document.getElementById("inputNama").value.trim();
+      const telp = document.getElementById("inputTelp").value.trim();
+      const alamat = document.getElementById("inputAlamat").value.trim();
+      const metode = document.getElementById("metodePembayaran").value;
+      const ekspedisi = document.getElementById("pilihEkspedisi").value;
+      const promo = document.getElementById("pakaiVoucherOngkir").checked ? "freeongkir" : "none";
+      const tanggal = new Date().toLocaleString("id-ID");
+
+      if (!nama || !telp || !alamat) return tampilkanPopupPesan("❌ Harap lengkapi semua data terlebih dahulu.");
+      if (!ekspedisi) return tampilkanPopupPesan("❌ Harap pilih ekspedisi.");
+
+      if (promo === "freeongkir") {
+        const userEmail = user.email || "guest";
+        const voucherData = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+        const sisa = voucherData[userEmail] || 0;
+        if (sisa <= 0) return tampilkanPopupPesan("❌ Voucher Gratis Ongkir Anda sudah habis.");
+      }
+
+      if (metode === "Transfer Bank" && !document.getElementById("selectBank").value)
+        return tampilkanPopupPesan("❌ Pilih bank terlebih dahulu.");
+
+      if (metode === "E-Wallet" && !document.getElementById("selectWallet").value)
+        return tampilkanPopupPesan("❌ Pilih e-wallet terlebih dahulu.");
+
+      if (metode === "Transfer Bank" || metode === "E-Wallet") {
+        const buktiInput = document.getElementById("buktiTransfer");
+        if (!buktiInput || !buktiInput.files.length)
+          return tampilkanPopupPesan("❌ Harap unggah bukti transfer terlebih dahulu.");
+
+        const reader = new FileReader();
+        reader.onload = function () {
+          const base64 = reader.result;
+          const semuaBukti = JSON.parse(localStorage.getItem("semuaBuktiPembayaran") || "[]");
+          semuaBukti.push({
+            bukti: base64,
+            nama,
+            email: user.email || "-",
+            telp,
+            alamat,
+            metode,
+            waktu: tanggal
+          });
+          localStorage.setItem("semuaBuktiPembayaran", JSON.stringify(semuaBukti));
+
+          // Lanjut proses setelah bukti berhasil dibaca
+          prosesPembayaran();
+        };
+        reader.readAsDataURL(buktiInput.files[0]);
+      } else {
+        localStorage.removeItem("buktiPembayaran");
+        prosesPembayaran();
+      }
+    }
+
+
+    function cekVoucherDipilih() {
+      const checkbox = document.getElementById("pakaiVoucherOngkir");
+      const userEmail = user.email || "guest";
+      const voucherData = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+      const sisa = voucherData[userEmail] || 0;
+
+      if (checkbox.checked && sisa <= 0) {
+        tampilkanPopupPesan("❌ Voucher Gratis Ongkir Anda sudah habis. Silakan lanjut tanpa voucher.");
+        checkbox.checked = false;
+      }
+
+      updateTotal();
+      tampilkanSisaVoucher();
+    }
+
+    function tampilkanPopupPesan(pesan) {
+      const popup = document.getElementById("popupNotif");
+      const isi = document.getElementById("popupNotifContent");
+
+      isi.textContent = pesan;
+      popup.classList.add("active");
+
+      setTimeout(() => {
+        popup.classList.remove("active");
+      }, 2500); // 2,5 detik hilang otomatis
+    }
+
+    function prosesPembayaran() {
+      hitungOngkir();
+      const ongkirFix = document.getElementById("pakaiVoucherOngkir").checked ? 0 : ongkir;
+      const ongkirPerItem = Math.ceil(ongkirFix / data.length);
+      const tanggal = new Date().toLocaleString("id-ID");
+      const waktu = new Date().toISOString();
+      const pembeli = user.name || "Guest";
+      const metode = document.getElementById("metodePembayaran").value;
+      const ekspedisi = document.getElementById("pilihEkspedisi").value;
+      const alamat = document.getElementById("inputAlamat").value.trim();
+      const telp = document.getElementById("inputTelp").value.trim();
+
+      const histori = JSON.parse(localStorage.getItem("historiBelanja") || "[]");
+      const laporan = JSON.parse(localStorage.getItem("laporanPenjualan") || "[]");
+      const pesananPending = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const semuaPesanan = JSON.parse(localStorage.getItem("semuaPesanan") || "[]");
+
+      data.forEach(item => {
+        const produk = [...allProduk, ...adminProduk].find(p => p.nama === item.nama);
+        const harga = produk ? parseInt(produk.harga) : 50000;
+        const subtotal = (harga * item.qty) + ongkirPerItem;
+
+        item.harga = harga;
+        item.subtotal = subtotal;
+        item.waktu = waktu;
+        item.metode = metode;
+        item.ekspedisi = ekspedisi;
+        item.totalSetelahPromo = totalSetelahPromo;
+        item.status = "Menunggu Konfirmasi";
+        item.namaPembeli = pembeli;
+
+        laporan.push({
+          nama: item.nama,
+          jumlah: item.qty,
+          ukuran: item.ukuran || "-",
+          harga,
+          subtotal,
+          tanggal,
+          pembeli
+        });
+
+        histori.push(item);
+        pesananPending.push({
+          ...item,
+          alamat,
+          telp,
+          email: user.email || "-",
+          pembeli,
+          status: "Menunggu Konfirmasi",
+          metode,
+          ekspedisi,
+          waktu
+        });
+      });
+
+      semuaPesanan.push({
+        user: pembeli,
+        email: user?.email || "guest",
+        metodePembayaran: metode,
+        alamat,
+        total: totalSetelahPromo,
+        tanggal
+      });
+
+      localStorage.setItem("historiBelanja", JSON.stringify(histori));
+      localStorage.setItem("laporanPenjualan", JSON.stringify(laporan));
+      localStorage.setItem("pesananPending", JSON.stringify(pesananPending));
+      localStorage.setItem("semuaPesanan", JSON.stringify(semuaPesanan));
+      localStorage.setItem("buktiTerakhir", JSON.stringify(data));
+      localStorage.setItem("totalAkhirPembayaran", totalSetelahPromo);
+      localStorage.removeItem("checkoutItems");
+
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const cartBaru = cart.filter(itemCart =>
+        !data.some(itemCk => itemCk.nama === itemCart.nama && itemCk.ukuran === itemCart.ukuran)
+      );
+      localStorage.setItem("cart", JSON.stringify(cartBaru));
+
+      kurangiVoucherJikaPakai();
+      tampilkanSisaVoucher();
+
+      document.getElementById("popupSukses").classList.add("show");
+      setTimeout(() => window.location.href = "bukti.html", 2000);
+    }
+
+  </script>
+
+
+</body>
+
+</html>

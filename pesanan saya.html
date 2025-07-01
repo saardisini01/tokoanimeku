@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pesanan Saya</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      padding: 40px;
+      color: #1e293b;
+    }
+
+    h2 {
+      color: #0f172a;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .pesanan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .pesanan-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid #94a3b8;
+      transition: transform 0.2s ease;
+      display: flex; /* Tambahkan flexbox untuk layout di dalam card */
+      flex-direction: column; /* Susun konten secara kolom */
+      justify-content: space-between; /* Untuk mendorong tombol ke bawah */
+      min-height: 350px; /* Atur tinggi minimum agar tombol rata */
+      box-sizing: border-box; /* Pastikan padding tidak menambah ukuran */
+    }
+
+    .pesanan-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .pesanan-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .pesanan-card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .pesanan-card small {
+      font-size: 13px;
+      color: #64748b;
+      display: block; /* Agar setiap small di baris baru */
+      margin-bottom: 4px; /* Jarak antar detail */
+    }
+    .pesanan-card small strong {
+        color: #334155;
+    }
+
+    .status {
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: inline-block;
+      margin-top: 10px;
+      margin-bottom: 10px; /* Jarak bawah status */
+    }
+
+    .status.Selesai { background: #dcfce7; color: #16a34a; }
+    .status.Dikirim { background: #dbeafe; color: #2563eb; }
+    .status.Dikemas { background: #fef3c7; color: #b45309; }
+    .status.Dibatalkan { background: #fee2e2; color: #dc2626; }
+    .status.Menunggu_Konfirmasi { background: #e0f2fe; color: #0284c7; }
+    .status.Menunggu_Persetujuan_Pembatalan { background: #fef08a; color: #92400e; }
+
+    .btn-action { /* Kelas umum untuk tombol aksi */
+      margin-top: 12px;
+      padding: 8px 14px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      width: 100%; /* Agar tombol memenuhi lebar kontainer */
+      text-align: center;
+      box-sizing: border-box; /* Pastikan padding tidak menambah lebar total */
+    }
+
+    .btn-action:hover { transform: translateY(-1px); }
+    
+    /* Warna spesifik untuk tombol aksi */
+    .btn-diterima { background: #10b981; }
+    .btn-diterima:hover { background: #059669; }
+
+    .btn-edit-ulasan { background: #f59e0b; }
+    .btn-edit-ulasan:hover { background: #d97706; }
+
+    .btn-batal { background: #ef4444; }
+    .btn-batal:hover { background: #dc2626; }
+
+
+    .harga {
+      font-weight: bold;
+      color: #ef4444;
+      margin: 8px 0;
+    }
+
+    .pesanan-grid.single .pesanan-card {
+      max-width: 420px;
+      width: 100%;
+    }
+
+    /* Styling untuk Rating Modal */
+    #ratingModal {
+      display: none; /* Initial state: hidden */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    #ratingModal > div { /* Konten di dalam modal */
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      color: #1e293b;
+      box-sizing: border-box;
+    }
+    #ratingModal h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 22px;
+        color: #0f172a;
+    }
+    #bintangContainer span {
+      font-size: 2.2em; /* Ukuran bintang */
+      cursor: pointer;
+      color: #FFD700; /* Warna emas untuk bintang */
+      transition: transform 0.1s ease;
+    }
+    #bintangContainer span:hover { transform: scale(1.1); }
+    #ulasanInput {
+      width: calc(100% - 20px); /* Sesuaikan dengan padding */
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+      resize: vertical; /* Memungkinkan resize vertikal */
+      min-height: 80px;
+      box-sizing: border-box;
+    }
+    #ratingModal .modal-actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+    #ratingModal .modal-actions button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-left: 10px; /* Jarak antar tombol */
+    }
+    #ratingModal .modal-actions .btn-submit { background: #10b981; color: white; }
+    #ratingModal .modal-actions .btn-submit:hover { background: #059669; }
+    #ratingModal .modal-actions .btn-cancel { background: #ef4444; color: white; }
+    #ratingModal .modal-actions .btn-cancel:hover { background: #dc2626; }
+  </style>
+
+</head>
+  <div style="text-align:left; margin-top:20px; margin-left: 40px;">
+    <a href="index.html" style="
+    display:inline-block;
+    background:#10b981;
+    color:white;
+    padding:10px 18px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:15px;
+    font-weight: bold;">
+      ← Kembali
+    </a>
+  </div>
+<body>
+  <h2>📦 Pesanan Saya</h2>
+  <div class="pesanan-grid" id="daftarPesanan"></div>
+
+  <div id="ratingModal">
+    <div>
+      <h3>Beri Rating & Ulasan</h3>
+      <p id="ratingModalProdukNama" style="font-weight: bold; margin-bottom: 15px;"></p>
+      <div id="bintangContainer">
+        <span onclick="pilihBintang(1)">⭐</span>
+        <span onclick="pilihBintang(2)">⭐</span>
+        <span onclick="pilihBintang(3)">⭐</span>
+        <span onclick="pilihBintang(4)">⭐</span>
+        <span onclick="pilihBintang(5)">⭐</span>
+      </div>
+      <textarea id="ulasanInput" placeholder="Tulis ulasan Anda di sini..." rows="4"></textarea>
+      <div class="modal-actions">
+        <button onclick="simpanUlasan()" class="btn-submit">Kirim Ulasan</button>
+        <button onclick="tutupRating()" class="btn-cancel">Batal</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    let dataPesananIndex = null;
+    let bintangDipilih = 0;
+    let produkYangDinilai = null;
+    let ulasanProdukNama = '';
+
+    // Fungsi untuk menampilkan modal rating/ulasan
+    function beriRating(index, event) {
+      // Pastikan event tidak menyebar ke elemen parent yang mungkin memiliki onclick lain
+      if (event) {
+          event.stopPropagation();
+      }
+      console.log('beriRating called for index:', index); // DEBUG
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || (!user.name && !user.email)) {
+          alert("Silakan login untuk memberikan ulasan.");
+          return;
+      }
+
+      const semua = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const pesanan = semua[index]; 
+
+      if (!pesanan) { 
+          console.error('Pesanan tidak ditemukan pada index:', index); // DEBUG
+          alert('Kesalahan: Detail pesanan tidak ditemukan.');
+          return;
+      }
+      console.log('Pesanan ditemukan:', pesanan); // DEBUG
+
+      // Periksa apakah user yang login adalah pembeli pesanan ini
+      if (pesanan.namaPembeli !== user.name && pesanan.email !== user.email) {
+          alert("Anda tidak memiliki izin untuk mengulas pesanan ini.");
+          return;
+      }
+
+      dataPesananIndex = index;
+      produkYangDinilai = {
+        kode: pesanan.kode || pesanan.nama,
+        nama: pesanan.nama,
+        image: pesanan.image,
+        pembeli: user.name,
+        email: user.email 
+      };
+      ulasanProdukNama = pesanan.nama; 
+
+      document.getElementById("ulasanInput").value = "";
+      bintangDipilih = 0;
+      document.querySelectorAll("#bintangContainer span").forEach(b => {
+          b.textContent = "⭐"; 
+          b.style.color = "#FFD700"; 
+      });
+      
+      document.getElementById("ratingModalProdukNama").textContent = `Produk: ${ulasanProdukNama}`;
+      document.getElementById("ratingModal").style.display = "flex";
+      console.log('Modal display set to flex'); // DEBUG
+
+      const semuaUlasan = JSON.parse(localStorage.getItem("ulasanProduk") || "[]");
+      const existingUlasan = semuaUlasan.find(u =>
+        u.kode === produkYangDinilai.kode && u.pembeli === produkYangDinilai.pembeli && u.email === produkYangDinilai.email
+      );
+      if (existingUlasan) {
+        document.getElementById("ulasanInput").value = existingUlasan.ulasan;
+        pilihBintang(existingUlasan.bintang);
+        console.log('Existing ulasan loaded:', existingUlasan); // DEBUG
+      }
+    }
+
+    function pilihBintang(n) {
+      console.log('pilihBintang called with:', n); // DEBUG
+      bintangDipilih = n;
+      document.querySelectorAll("#bintangContainer span").forEach((b, i) => {
+        b.textContent = i < n ? "⭐" : "☆";
+      });
+    }
+
+    function tutupRating() {
+      console.log('tutupRating called'); // DEBUG
+      document.getElementById("ratingModal").style.display = "none";
+    }
+
+    function simpanUlasan() {
+      console.log('simpanUlasan called'); // DEBUG
+      const ulasan = document.getElementById("ulasanInput").value.trim();
+      if (!ulasan || bintangDipilih === 0) {
+        alert("❌ Lengkapi rating dan ulasan!");
+        return;
+      }
+
+      const semuaUlasan = JSON.parse(localStorage.getItem("ulasanProduk") || "[]");
+      const semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const pesanan = semuaPesanan[dataPesananIndex]; 
+
+      if (!pesanan) {
+          console.error('Pesanan tidak ditemukan di simpanUlasan. Index:', dataPesananIndex); // DEBUG
+          alert("Kesalahan: Data pesanan tidak ditemukan.");
+          tutupRating();
+          return;
+      }
+
+      let existingUlasan = semuaUlasan.find(u =>
+        u.kode === produkYangDinilai.kode && u.pembeli === produkYangDinilai.pembeli && u.email === produkYangDinilai.email
+      );
+
+      if (existingUlasan) {
+        if (existingUlasan.editCount === undefined) existingUlasan.editCount = 0;
+        if (existingUlasan.editCount >= 2) {
+            alert("❌ Ulasan sudah mencapai batas maksimal edit (2 kali).");
+            tutupRating();
+            return;
+        }
+        existingUlasan.ulasan = ulasan;
+        existingUlasan.bintang = bintangDipilih;
+        existingUlasan.tanggal = new Date().toLocaleString("id-ID");
+        existingUlasan.editCount += 1;
+        console.log('Ulasan updated:', existingUlasan); // DEBUG
+      } else {
+        semuaUlasan.push({
+          ...produkYangDinilai,
+          ulasan,
+          bintang: bintangDipilih,
+          tanggal: new Date().toLocaleString("id-ID"),
+          editCount: 0 
+        });
+        console.log('New ulasan added:', semuaUlasan[semuaUlasan.length-1]); // DEBUG
+      }
+
+      // Update status pesanan sebagai diterima di pesananPending
+      if (pesanan.status === "Selesai" && !pesanan.diterima) {
+          pesanan.diterima = true; 
+          console.log('Pesanan marked as diterima:', pesanan); // DEBUG
+      }
+      localStorage.setItem("pesananPending", JSON.stringify(semuaPesanan));
+      localStorage.setItem("ulasanProduk", JSON.stringify(semuaUlasan));
+
+      alert("✅ Ulasan berhasil dikirim!");
+      tutupRating();
+      renderDaftarPesanan(); 
+    }
+
+    function renderDaftarPesanan() {
+      console.log('renderDaftarPesanan called'); // DEBUG
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || (!user.name && !user.email)) {
+          console.warn('User not logged in or invalid user data.'); // DEBUG
+          document.getElementById("daftarPesanan").innerHTML = "<p>Silakan login untuk melihat pesanan Anda.</p>";
+          return;
+      }
+
+      const semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const semuaUlasan = JSON.parse(localStorage.getItem("ulasanProduk") || "[]");
+
+      const pesananSaya = semuaPesanan.filter(p => 
+          (p.namaPembeli === user.name) || (user.email && p.email === user.email)
+      );
+      console.log('Pesanan saya:', pesananSaya); // DEBUG
+
+      const container = document.getElementById("daftarPesanan");
+
+      if (pesananSaya.length === 0) {
+        container.innerHTML = "<p>Belum ada pesanan.</p>";
+      } else {
+        container.innerHTML = pesananSaya.map((item, index) => {
+          // Normalisasi status untuk kelas CSS
+          const statusClass = item.status.replace(/ /g, '_'); 
+
+          // Cek apakah user sudah mengulas produk ini
+          const ulasanUserUntukProdukIni = semuaUlasan.find(u =>
+            (u.kode === (item.kode || item.nama)) && (u.pembeli === user.name) && (u.email === user.email)
+          );
+          console.log(`Ulasan untuk ${item.nama}:`, ulasanUserUntukProdukIni); // DEBUG
+
+          // Logika Tombol "Pesanan Diterima" / "Beri Rating"
+          let tombolPesananDiterima = "";
+          // Muncul jika status Selesai DAN belum ditandai 'diterima'
+          // Penting: tambahkan event parameter ke onclick
+          if (item.status === "Selesai" && !item.diterima) {
+             tombolPesananDiterima = `
+                <button onclick="beriRating(${index}, event)" class="btn-action btn-diterima">
+                    Pesanan Diterima & Beri Ulasan
+                </button>`;
+          }
+
+          // Logika Tombol "Edit Ulasan"
+          let tombolEditUlasan = "";
+          // Muncul jika pesanan sudah diterima (item.diterima true) DAN sudah ada ulasan
+          if (item.diterima && ulasanUserUntukProdukIni) { 
+              if (ulasanUserUntukProdukIni.editCount === undefined) ulasanUserUntukProdukIni.editCount = 0; 
+              if (ulasanUserUntukProdukIni.editCount < 2) {
+                 tombolEditUlasan = `
+                    <button onclick="beriRating(${index}, event)" class="btn-action btn-edit-ulasan">
+                        Edit Ulasan (${2 - ulasanUserUntukProdukIni.editCount} sisa)
+                    </button>`;
+              }
+              else if (ulasanUserUntukProdukIni.editCount >= 2) {
+                  tombolEditUlasan = `<p style="font-size:12px; color:red; margin-top:5px; text-align:center;">Batas edit ulasan telah tercapai.</p>`;
+              }
+          }
+          
+          // Logika Tombol Pembatalan
+          let tombolBatal = "";
+          if (!["Dikirim", "Selesai", "Dibatalkan", "Menunggu_Persetujuan_Pembatalan"].includes(statusClass)) { /* Perbaikan status */
+            tombolBatal = `
+                <button onclick="ajukanPembatalan(${index})" class="btn-action btn-batal">
+                    Ajukan Pembatalan
+                </button>`;
+          } else if (statusClass === "Menunggu_Persetujuan_Pembatalan") {
+              tombolBatal = `<p style="font-size:12px; color:#f59e0b; margin-top:5px; text-align:center;">Menunggu persetujuan pembatalan...</p>`;
+          }
+
+
+          return `
+            <div class="pesanan-card" onclick="bukaDetailProduk('${item.kode || item.nama}')">
+              <img src="${item.image || 'images/default-image.png'}" alt="${item.nama}"
+                   style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;" />
+              <div>
+                <h3>${item.nama}</h3>
+                <small><strong>Jumlah:</strong> ${item.qty} pcs</small>
+                <small><strong>Ukuran:</strong> ${item.ukuran}</small>
+                <small><strong>Harga Satuan:</strong> Rp ${parseInt(item.harga).toLocaleString()}</small>
+                <small><strong>Subtotal:</strong> Rp ${(parseInt(item.harga) * item.qty).toLocaleString()}</small>
+                <small><strong>Tanggal:</strong> ${item.waktu}</small>
+                <span class="status ${statusClass}">${item.status.replace(/_/g, ' ')}</span>
+              </div>
+              <div class="card-actions" style="margin-top: auto; padding-top: 10px; border-top: 1px dashed #eee;">
+                ${tombolBatal}
+                ${tombolPesananDiterima}
+                ${tombolEditUlasan}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (pesananSaya.length === 1) {
+        const grid = document.querySelector(".pesanan-grid");
+        grid.style.display = "flex";
+        grid.style.justifyContent = "center";
+      } else if (pesananSaya.length === 0) {
+        // Biarkan display grid default jika kosong, tapi isi dengan pesan
+      } else {
+        const grid = document.querySelector(".pesanan-grid");
+        grid.style.display = "grid";
+        grid.style.justifyContent = "unset";
+      }
+    }
+
+    function ajukanPembatalan(index) {
+      const data = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (data[index].namaPembeli !== user.name && data[index].email !== user.email) {
+          alert("Anda tidak memiliki izin untuk membatalkan pesanan ini.");
+          return;
+      }
+
+      if (["Dikirim", "Selesai", "Dibatalkan"].includes(data[index].status)) {
+        alert("❌ Pesanan ini tidak bisa dibatalkan.");
+        return;
+      }
+
+      if (confirm("Anda yakin ingin mengajukan pembatalan pesanan ini?")) {
+        data[index].status = "Menunggu Persetujuan Pembatalan";
+        localStorage.setItem("pesananPending", JSON.stringify(data));
+        alert("✅ Permintaan pembatalan dikirim ke admin.");
+        renderDaftarPesanan(); 
+      }
+    }
+    
+    function bukaDetailProduk(kode) {
+      window.location.href = `produk.html?kode=${encodeURIComponent(kode)}`;
+    }
+
+    // Panggil saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', renderDaftarPesanan);
+  </script>
+
+</body>
+
+</html>

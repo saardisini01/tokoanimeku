@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pengeluaran Toko</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f1f5f9;
+      padding: 30px;
+      color: #1e293b;
+    }
+
+    h1 {
+      text-align: center;
+      color: #dc2626;
+      margin-bottom: 30px;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    input, button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+    }
+
+    input {
+      flex: 1 1 200px;
+    }
+
+    button {
+      background: #dc2626;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #b91c1c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    th {
+      background: #dc2626;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #fef2f2;
+    }
+
+    .total-box {
+      margin-top: 20px;
+      text-align: right;
+      font-weight: bold;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+  <h1>📉 Pengeluaran Toko</h1>
+
+  <form id="formPengeluaran">
+    <input type="date" id="tanggal" required />
+    <input type="text" id="keterangan" placeholder="Contoh: Beli bahan kaos" required />
+    <input type="number" id="jumlah" placeholder="Jumlah (Rp)" required />
+    <button type="submit">+ Tambah</button>
+  </form>
+
+  <table id="tabelPengeluaran">
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Keterangan</th>
+        <th>Jumlah</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="total-box">
+    Total Pengeluaran: <span id="totalPengeluaran">Rp 0</span>
+  </div>
+
+  <script>
+    const form = document.getElementById('formPengeluaran');
+    const tbody = document.querySelector('tbody');
+    const totalBox = document.getElementById('totalPengeluaran');
+
+    let pengeluaran = JSON.parse(localStorage.getItem('pengeluaranToko') || '[]');
+
+    function simpan() {
+      localStorage.setItem('pengeluaranToko', JSON.stringify(pengeluaran));
+    }
+
+    function tampilkan() {
+      tbody.innerHTML = '';
+      let total = 0;
+
+      pengeluaran.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.tanggal}</td>
+          <td>${item.keterangan}</td>
+          <td>Rp ${parseInt(item.jumlah).toLocaleString('id-ID')}</td>
+          <td><button onclick="hapus(${index})" style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Hapus</button></td>
+        `;
+        tbody.appendChild(row);
+        total += parseInt(item.jumlah);
+      });
+
+      totalBox.textContent = 'Rp ' + total.toLocaleString('id-ID');
+    }
+
+    function hapus(index) {
+      if (confirm('Yakin ingin menghapus pengeluaran ini?')) {
+        pengeluaran.splice(index, 1);
+        simpan();
+        tampilkan();
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = {
+        tanggal: document.getElementById('tanggal').value,
+        keterangan: document.getElementById('keterangan').value,
+        jumlah: document.getElementById('jumlah').value
+      };
+      pengeluaran.push(data);
+      simpan();
+      tampilkan();
+      form.reset();
+    });
+
+    tampilkan();
+  </script>
+</body>
+</html>

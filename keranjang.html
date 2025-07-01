@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keranjang Belanja</title>
+  <style>
+    .tombol-utama {
+      border: none;
+      padding: 10px 16px;
+      color: white;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url('keranjang.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+
+    .keranjang-container {
+      width: 90%;
+      max-width: 900px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      backdrop-filter: blur(18px);
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 30px 20px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      color: white;
+    }
+
+
+    .keranjang-container h2 {
+      margin-bottom: 24px;
+      text-align: center;
+      font-size: 24px;
+      color: #ffffff;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .cart-item-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cart-item-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .cart-item-info h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .cart-item-info p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #000000da;
+    }
+
+    .cart-item-actions button {
+      background: #f97316;
+      border: none;
+      padding: 6px 10px;
+      color: white;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cart-item-actions button:hover {
+      background: #fb923c;
+    }
+
+    .cart-footer {
+      text-align: right;
+      margin-top: 24px;
+    }
+
+    .cart-footer .total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #fef3c7;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .checkout-btn,
+    .hapus-btn {
+      background-color: #10b981;
+      border: none;
+      padding: 10px 16px;
+      color: white;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .checkout-btn:hover {
+      background-color: #059669;
+    }
+
+    .hapus-btn {
+      background-color: #ef4444;
+    }
+
+    .hapus-btn:hover {
+      background-color: #dc2626;
+    }
+
+    .pilih-semua {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .pilih-semua label {
+      font-size: 16px;
+      color: #fff;
+    }
+
+    #popupAlert {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #10b981;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .kembali-dalam-box {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .kembali-dalam-box button {
+      background-color: #f97316;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 120px;
+    }
+
+    .kembali-dalam-box button:hover {
+      background-color: #e67518;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="keranjang-container">
+    <!-- 🔙 Tombol Kembali di Dalam Kotak -->
+    <div class="kembali-dalam-box">
+      <button onclick="window.location.href='index.html'">Kembali</button>
+    </div>
+
+    <h2>🛒 Keranjang Belanja Anda</h2>
+
+    <div class="pilih-semua">
+      <input type="checkbox" id="checkAll" onchange="toggleCentangSemua(this)" style="
+        margin-right: 10px;
+        width: 22px;
+        height: 22px;
+        accent-color: #f97316;
+        transform: scale(1.2);
+        cursor: pointer;
+      " />
+      <label for="checkAll"><strong>Pilih Semua</strong></label>
+    </div>
+
+    <div id="cartItems"></div>
+
+    <!-- 🔽 Total harga langsung setelah daftar produk -->
+    <div class="cart-footer">
+      <div class="total">Total: <span id="totalHarga">Rp 0</span></div>
+
+      <div class="btn-row">
+        <button class="tombol-utama hapus-btn" onclick="hapusDipilih()">🗑 Hapus</button>
+        <button class="tombol-utama checkout-btn" onclick="checkout()">✅ Checkout</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="popupAlert"></div>
+
+  <script>
+    function tampilkanPopup(pesan, warna = '#10b981') {
+      const popup = document.getElementById("popupAlert");
+      popup.textContent = pesan;
+      popup.style.background = warna;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 2000);
+    }
+
+    function renderKeranjang() {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const allProduk = JSON.parse(localStorage.getItem("allProduk")) || [];
+      const produkAdmin = JSON.parse(localStorage.getItem("adminProduk")) || [];
+      const container = document.getElementById("cartItems");
+      const totalHargaEl = document.getElementById("totalHarga");
+      let total = 0;
+      container.innerHTML = "";
+
+      // Simpan status centang saat ini ke cart item
+      document.querySelectorAll(".centang").forEach(cb => {
+        const i = parseInt(cb.dataset.index);
+        if (cart[i]) cart[i].checked = cb.checked;
+      });
+
+      // Simpan kembali cart yang sudah disisipkan checked
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      if (cart.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>Keranjang kosong.</p>";
+        totalHargaEl.textContent = "Rp 0";
+        return;
+      }
+
+      cart.forEach((item, i) => {
+        const produk = allProduk.find(p => p.nama === item.nama);
+        const harga = produk ? parseInt(produk.harga) : 0;
+        const gambar = item.image || produk?.image || "images/default-image.png";
+        const subtotal = harga * item.qty;
+        total += subtotal;
+
+        const checkedAttr = item.checked ? "checked" : "";
+
+        container.innerHTML += `
+  <div class="cart-item">
+    <div class="cart-item-left">
+      <input type="checkbox" class="centang" data-index="${i}" ${checkedAttr}
+       style="width: 22px; height: 22px; accent-color: #f97316; cursor: pointer;" />
+      <img src="${gambar}" alt="${item.nama}" class="cart-item-img">
+      <div class="cart-item-info">
+        <h4>${item.nama}</h4>
+        <p>
+          Ukuran: ${item.ukuran || "-"}<br>
+          Rp ${parseInt(harga).toLocaleString("id-ID")} x ${item.qty} = Rp ${subtotal.toLocaleString("id-ID")}
+        </p>
+      </div>
+    </div>
+    <div class="cart-item-actions">
+      <button onclick="ubahQty(${i}, -1)">−</button>
+      <span>${item.qty}</span>
+      <button onclick="ubahQty(${i}, 1)">+</button>
+    </div>
+  </div>
+`;
+        // Sinkronisasi checkbox "Pilih Semua" berdasarkan status masing-masing item
+        const semuaCentang = document.querySelectorAll(".centang");
+        const checkAll = document.getElementById("checkAll");
+
+        const semuaTercentang = [...semuaCentang].length > 0 && [...semuaCentang].every(cb => cb.checked);
+        checkAll.checked = semuaTercentang;
+
+        // Tambahkan event ke masing-masing centang
+        semuaCentang.forEach(cb => {
+          cb.addEventListener("change", () => {
+            const ulangCek = [...semuaCentang].every(c => c.checked);
+            checkAll.checked = ulangCek;
+
+            // Simpan status ke localStorage
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            const index = parseInt(cb.dataset.index);
+            if (cart[index]) {
+              cart[index].checked = cb.checked;
+              localStorage.setItem("cart", JSON.stringify(cart));
+            }
+          });
+        });
+
+      });
+
+      totalHargaEl.textContent = "Rp " + total.toLocaleString("id-ID");
+      // ⬇️ Tambahkan ini di akhir fungsi renderKeranjang()
+      const semuaCentang = document.querySelectorAll(".centang");
+      const checkAll = document.getElementById("checkAll");
+
+      semuaCentang.forEach(cb => {
+        cb.addEventListener("change", () => {
+          const semuaTercentang = [...semuaCentang].every(c => c.checked);
+          checkAll.checked = semuaTercentang;
+
+          // Simpan juga status centang ke localStorage.cart
+          const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+          if (cart[cb.dataset.index]) {
+            cart[cb.dataset.index].checked = cb.checked;
+            localStorage.setItem("cart", JSON.stringify(cart));
+          }
+        });
+      });
+
+    }
+
+    function ubahQty(index, perubahan) {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart[index].qty = Math.max(1, cart[index].qty + perubahan); // minimal 1
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderKeranjang();
+    }
+
+    window.onload = () => {
+      renderKeranjang();
+    };
+
+
+
+    function toggleCentangSemua(checkbox) {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.forEach(item => item.checked = checkbox.checked);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderKeranjang();
+    }
+
+    function hapusDipilih() {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const centang = document.querySelectorAll(".centang:checked");
+      if (centang.length === 0) {
+        tampilkanPopup("❌ Tidak ada produk yang dipilih.", "#dc2626");
+        return;
+      }
+
+      const indexList = [...centang].map(cb => parseInt(cb.dataset.index));
+      cart = cart.filter((_, i) => !indexList.includes(i));
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderKeranjang();
+    }
+
+
+    function checkout() {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user) {
+        tampilkanPopupLoginDulu();
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const centang = document.querySelectorAll(".centang:checked");
+
+      if (centang.length === 0) {
+        tampilkanPopup("⚠️ Pilih produk dulu sebelum checkout.", "#f97316");
+        return;
+      }
+
+      const produkDipilih = [];
+      const allProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+
+      centang.forEach(cb => {
+        const index = parseInt(cb.dataset.index);
+        if (cart[index] && cart[index].qty > 0) {
+          const item = cart[index];
+          const produkInfo = allProduk.find(p => p.nama === item.nama);
+          const harga = produkInfo ? produkInfo.harga : 0;
+          const ukuran = item.ukuran || "-";
+          const gambar = item.image || produkInfo?.image || "images/default-image.png";
+
+          produkDipilih.push({
+            ...item,
+            harga: harga,
+            ukuran: ukuran,
+            image: gambar
+          });
+        }
+      });
+
+      if (produkDipilih.length === 0) {
+        tampilkanPopup("❌ Produk yang dicentang tidak valid.", "#dc2626");
+        return;
+      }
+
+      localStorage.setItem("checkoutItems", JSON.stringify(produkDipilih));
+      window.location.href = "pembayaran.html";
+    }
+
+    function catatLaporanPenjualan(namaProduk, jumlah = 1, ukuran = null) {
+      const laporan = JSON.parse(localStorage.getItem("laporanPenjualan") || "[]");
+      const now = new Date();
+      laporan.push({
+        nama: namaProduk,
+        jumlah: jumlah,
+        ukuran: ukuran,
+        tanggal: now.toLocaleString("id-ID")
+      });
+      localStorage.setItem("laporanPenjualan", JSON.stringify(laporan));
+    }
+
+    function tampilkanPopupLoginDulu() {
+      if (document.getElementById("popup-login")) return;
+
+      const popup = document.createElement("div");
+      popup.id = "popup-login";
+      popup.style.position = "fixed";
+      popup.style.top = "50%";
+      popup.style.left = "50%";
+      popup.style.transform = "translate(-50%, -50%)";
+      popup.style.background = "#fff";
+      popup.style.color = "#1f2937";
+      popup.style.padding = "24px 32px";
+      popup.style.borderRadius = "12px";
+      popup.style.boxShadow = "0 8px 30px rgba(0,0,0,0.4)";
+      popup.style.zIndex = "99999";
+      popup.style.textAlign = "center";
+      popup.innerHTML = `
+    <h3 style="margin-bottom: 12px;">Login Diperlukan</h3>
+    <p style="margin-bottom: 20px;">Silakan login terlebih dahulu untuk melanjutkan.</p>
+    <button onclick="document.getElementById('popup-login').remove()" style="padding:10px 20px; background:#f97316; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
+  `;
+      document.body.appendChild(popup);
+    }
+
+    // Jangan lupa render ulang keranja
+  </script>
+</body>
+
+</html>

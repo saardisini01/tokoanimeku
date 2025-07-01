@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kelola Pesanan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 30px;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #0f172a;
+      font-size: 28px;
+    }
+
+    .back-to-admin-btn {
+      background: linear-gradient(to right, #6366f1, #4f46e5);
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .back-to-admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .filter-section {
+      text-align: center;
+      margin-bottom: 25px;
+      background: #ffffff;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .filter-section label {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .filter-section select {
+      width: auto;
+      min-width: 150px;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #f8fafc;
+      transition: border-color 0.2s;
+    }
+
+    .filter-section select:focus {
+      border-color: #6366f1;
+      outline: none;
+    }
+
+    .action-buttons-top {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .delete-all-btn {
+      background: #ef4444;
+      color: white;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-all-btn:hover {
+      background-color: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    .pesanan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .pesanan-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative; /* Ini penting agar status-label terposition relatif terhadap card ini */
+    }
+
+    .pesanan-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .pesanan-card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      /* Tambahkan padding-top untuk judul agar tidak tertutup status label */
+      padding-top: 25px; /* Sesuaikan sesuai kebutuhan agar tidak menutupi status */
+    }
+
+    .pesanan-card p {
+      margin: 6px 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #475569;
+    }
+
+    .pesanan-card p strong {
+        color: #1e293b;
+    }
+
+    .status-label {
+      position: absolute;
+      top: 15px; /* Jarak dari atas card */
+      right: 15px; /* Jarak dari kanan card */
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      z-index: 10; /* Pastikan di atas konten lain */
+    }
+
+    /* Warna status */
+    .Belum\:Bayar {
+      background: #fde68a;
+      color: #92400e;
+    }
+
+    .Dikemas {
+      background: #bfdbfe;
+      color: #1e3a8a;
+    }
+
+    .Dikirim {
+      background: #99f6e4;
+      color: #065f46;
+    }
+
+    .Selesai {
+      background: #bbf7d0;
+      color: #166534;
+    }
+
+    .Dibatalkan {
+      background: #fecaca;
+      color: #991b1b;
+    }
+
+    .ubah-status-select {
+      width: calc(100% - 20px);
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      margin-top: 15px;
+      background-color: #f8fafc;
+      cursor: pointer;
+    }
+
+    .ubah-status-select:focus {
+      border-color: #4f46e5;
+      outline: none;
+    }
+
+    .no-pesanan {
+      text-align: center;
+      font-size: 18px;
+      color: #64748b;
+      margin-top: 50px;
+    }
+
+    /* Popup Gambar */
+    #gambarPopup {
+      background-color: rgba(0, 0, 0, 0.85);
+    }
+
+    #gambarPopupImg {
+      border-radius: 15px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Popup Konfirmasi */
+    #popupKonfirmasi {
+      background: #2d3748;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    #popupKonfirmasi p {
+        font-size: 18px;
+        margin-bottom: 25px;
+        color: #e2e8f0;
+    }
+    #popupKonfirmasi button {
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: transform 0.2s;
+    }
+    #popupKonfirmasi button:hover {
+        transform: translateY(-2px);
+    }
+    #popupKonfirmasi button:first-child {
+        background-color: #ef4444;
+    }
+    #popupKonfirmasi button:first-child:hover {
+        background-color: #dc2626;
+    }
+    #popupKonfirmasi button:last-child {
+        background-color: #64748b;
+    }
+    #popupKonfirmasi button:last-child:hover {
+        background-color: #475569;
+    }
+
+
+    /* Popup Sukses */
+    #popupSukses {
+      background: #22c55e;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      font-size: 18px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <a href="admin.html" class="back-to-admin-btn" style="margin-left: 20px;">← Kembali ke Admin Home</a>
+
+  <h2>📋 Kelola Pesanan Pengguna</h2>
+
+  <div class="filter-section">
+    <label for="filterMetode"><strong>Filter Metode Pembayaran:</strong></label>
+    <select id="filterMetode" onchange="tampilkanPesananDenganFilter()">
+      <option value="">Semua</option>
+      <option value="COD">COD</option>
+      <option value="Transfer Bank">Transfer Bank</option>
+      <option value="E-Wallet">E-Wallet</option>
+    </select>
+  </div>
+
+  <div class="action-buttons-top">
+    <button onclick="hapusSemuaPesanan()" class="delete-all-btn">
+      🗑️ Hapus Semua Pesanan
+    </button>
+  </div>
+
+  <div class="pesanan-grid" id="tabelPesanan"></div>
+
+  <div id="gambarPopup" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+">
+    <img id="gambarPopupImg" src=""
+      style="max-width:90%; max-height:90%; border-radius:12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"
+      onclick="tutupGambarPopup()" />
+  </div>
+  <div id="popupKonfirmasi" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e293b;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  text-align: center;
+">
+    <p style="margin-bottom: 16px;">Apakah Anda yakin ingin menghapus semua pesanan?</p>
+    <button onclick="lanjutHapusPesanan()"
+      style="margin-right: 10px; background:#ef4444; color:white; border:none; padding:8px 14px; border-radius:6px;">Ya</button>
+    <button onclick="batalHapusPesanan()"
+      style="background:#94a3b8; color:white; border:none; padding:8px 14px; border-radius:6px;">Batal</button>
+  </div>
+  <div id="popupSukses" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #10b981;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+">
+    ✅ Semua pesanan telah dihapus!
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      tampilkanPesananDenganFilter(); // Panggil fungsi saat DOM sudah dimuat
+    });
+
+    function ubahStatus(index, statusBaru) {
+      const pesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      
+      // Update status pada item di array pesanan
+      pesanan[index].status = statusBaru;
+      pesanan[index].namaPembeli = pesanan[index].pembeli; // sinkronisasi properti
+      localStorage.setItem("pesananPending", JSON.stringify(pesanan));
+      alert("✅ Status diperbarui!");
+      tampilkanPesananDenganFilter(); // Render ulang setelah status diubah
+    }
+
+    function perbesarGambar(src) {
+      const popup = document.getElementById("gambarPopup");
+      const img = document.getElementById("gambarPopupImg");
+      img.src = src;
+      popup.style.display = "flex";
+    }
+
+    function tutupGambarPopup() {
+      document.getElementById("gambarPopup").style.display = "none";
+    }
+
+    function hapusSemuaPesanan() {
+      document.getElementById("popupKonfirmasi").style.display = "block";
+    }
+
+    function lanjutHapusPesanan() {
+      localStorage.removeItem("pesananPending");
+      document.getElementById("popupKonfirmasi").style.display = "none";
+
+      const container = document.getElementById("tabelPesanan");
+      container.innerHTML = "<p class='no-pesanan'>Tidak ada pesanan.</p>";
+
+      tampilkanPopupSukses("✅ Semua pesanan telah dihapus.");
+    }
+
+    function batalHapusPesanan() {
+      document.getElementById("popupKonfirmasi").style.display = "none";
+    }
+
+    function tampilkanPopupSukses(pesan) {
+      const popup = document.getElementById("popupSukses");
+      popup.textContent = pesan || "✅ Sukses!";
+      popup.style.display = "block";
+
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 2500);
+    }
+
+    function tampilkanPesananDenganFilter() {
+      const semuaPesanan = JSON.parse(localStorage.getItem("pesananPending") || "[]");
+      const semuaProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+      const filterMetode = document.getElementById("filterMetode").value;
+      const container = document.getElementById("tabelPesanan");
+
+      const pesananYangDitampilkan = semuaPesanan.filter(p => {
+        return !filterMetode || p.metode === filterMetode;
+      });
+
+      if (pesananYangDitampilkan.length === 0) {
+        container.innerHTML = "<p class='no-pesanan'>Tidak ada pesanan yang sesuai dengan filter.</p>";
+        return;
+      }
+
+      pesananYangDitampilkan.forEach(p => {
+        if (!p.gambar || (!p.gambar.startsWith("data:image") && !p.gambar.startsWith("images/"))) {
+          const pData = semuaProduk.find(x => x.nama === p.nama);
+          if (pData?.image?.startsWith("data:image") || pData?.image?.startsWith("images/")) {
+            p.gambar = pData.image;
+          } else if (pData?.image) {
+            p.gambar = "images/" + pData.image;
+          } else {
+            p.gambar = "images/default-image.png";
+          }
+        }
+      });
+
+      container.innerHTML = pesananYangDitampilkan.map((item, i) => `
+        <div class="pesanan-card">
+          <span class="status-label ${item.status.replace(/ /g, '\\ ')}">${item.status}</span>
+          <h3>${item.nama}</h3>
+          <div style="text-align:center;">
+            <img
+              src="${item.gambar}"
+              alt="${item.nama}"
+              style="width:100%; max-width:300px; margin-top:12px; border-radius:10px; cursor:pointer;"
+              onclick="perbesarGambar('${item.gambar}')"
+              onmouseover="this.style.transform='scale(1.05)'"
+              onmouseout="this.style.transform='scale(1)'"
+            />
+          </div>
+          <p><strong>Jumlah:</strong> ${item.qty} pcs</p>
+          <p><strong>Ukuran:</strong> ${item.ukuran}</p>
+          <p><strong>Pembeli:</strong> ${item.pembeli || item.namaPembeli || '-'}</p>
+          <p><strong>Alamat:</strong> ${item.alamat && item.alamat !== "-" ? item.alamat : "<span style='color:red;'>❗ Belum diisi</span>"}</p>
+          <p><strong>Telp:</strong> ${item.telp && item.telp !== "-" ? item.telp : "<span style='color:red;'>❗ Belum diisi</span>"}</p>
+          <p><strong>Metode Pembayaran:</strong> ${item.metode || "-"}</p>
+          <p><strong>Ekspedisi:</strong> ${item.ekspedisi || "-"}</p>
+          <p><strong>Tanggal:</strong> ${item.waktu}</p>
+          <label><strong>Ubah Status:</strong>
+            <select onchange="ubahStatus(${i}, this.value)" class="ubah-status-select">
+              <option value="Belum Bayar" ${item.status === 'Belum Bayar' ? 'selected' : ''}>Belum Bayar</option>
+              <option value="Dikemas" ${item.status === 'Dikemas' ? 'selected' : ''}>Dikemas</option>
+              <option value="Dikirim" ${item.status === 'Dikirim' ? 'selected' : ''}>Dikirim</option>
+              <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+              <option value="Dibatalkan" ${item.status === 'Dibatalkan' ? 'selected' : ''}>Dibatalkan</option>
+            </select>
+          </label>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+
+</html>

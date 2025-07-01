@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pusat Bantuan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fdfcfb, #e2d1c3);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: #f97316;
+            margin-bottom: 30px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1::before {
+            content: '🛠️';
+            font-size: 32px;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+            position: relative;
+            max-width: 500px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px 14px 42px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .faq-item {
+            margin-bottom: 28px;
+            padding: 16px;
+            background: #fefefe;
+            border-left: 5px solid #f97316;
+            border-radius: 10px;
+        }
+
+        .faq-item strong {
+            display: block;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .faq-item p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .kontak a {
+            display: block;
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            font-size: 15px;
+        }
+
+        .wa {
+            background: #25D366;
+        }
+
+        .email {
+            background: #3B82F6;
+        }
+
+        .ig {
+            background: linear-gradient(45deg, #feda75, #d62976, #962fbf, #4f5bd5);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #f97316;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .back-button:hover {
+            background-color: #ea580c;
+            transform: scale(1.05);
+        }
+    </style>
+    <script>
+        function filterFAQ() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.faq-item');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(input) ? 'block' : 'none';
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <a href="index.html" class="back-button">← Kembali ke Beranda</a>
+    <div class="container">
+        <h1>Pusat Bantuan</h1>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" onkeyup="filterFAQ()" placeholder="Cari masalah atau pertanyaan...">
+        </div>
+
+        <div class="faq-item">
+            <strong>❓ Tidak bisa checkout?</strong>
+            <p>Pastikan Anda sudah login. Pengguna tamu tidak bisa melakukan pemesanan.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>📦 Pesanan tidak muncul?</strong>
+            <p>Pesanan baru tampil setelah upload bukti pembayaran dan dikonfirmasi oleh admin.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>💳 Metode pembayaran apa saja?</strong>
+            <p>Kami menerima transfer bank, e-wallet (OVO, DANA), dan QRIS.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>📐 Ukuran tidak bisa dipilih?</strong>
+            <p>Ukuran hanya bisa diklik jika stok masih tersedia.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>📁 Gagal upload bukti transfer?</strong>
+            <p>Gunakan gambar JPG/PNG maksimal 2MB. Atau kirim bukti langsung ke WhatsApp admin.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>📥 Kenapa produk di keranjang hilang?</strong>
+            <p>Produk bisa hilang jika disimpan terlalu lama dan sesi habis. Silakan tambah ulang dari halaman produk.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>🔐 Saya lupa password, harus bagaimana?</strong>
+            <p>Gunakan fitur reset password di halaman login atau hubungi admin jika tidak tersedia.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>🔄 Status pesanan saya tidak berubah?</strong>
+            <p>Status akan diperbarui setelah admin memverifikasi pembayaran. Mohon tunggu maksimal 1x24 jam.</p>
+        </div>
+
+        <div class="faq-item">
+            <strong>📨 Saya tidak menerima email konfirmasi?</strong>
+            <p>Periksa folder spam atau pastikan alamat email yang digunakan sudah benar saat registrasi.</p>
+        </div>
+
+        <hr>
+
+        <div class="kontak">
+            <p><strong>Hubungi Kami:</strong></p>
+            <a href="https://wa.me/6285839227116?text=Halo%20admin%2C%20saya%20perlu%20bantuan%20mengenai%20pesanan%20saya." target="_blank" class="wa">📱 WhatsApp Admin</a>
+            <a href="mailto:syaifulazizali00@gmail.com?subject=Butuh%20Bantuan&body=Halo,%20saya%20ingin%20bertanya..." class="email">📧 Kirim Email</a>
+            <a href="https://instagram.com/saar.disini" target="_blank" class="ig">📸 Instagram Kami</a>
+        </div>
+    </div>
+</body>
+
+</html>

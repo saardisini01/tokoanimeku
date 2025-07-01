@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Produk</title>
+  <link rel="stylesheet" href="styleindex.css" />
+  <style>
+    body {
+      background: #f9fafb;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .produk-detail {
+      max-width: 1100px;
+      margin: 60px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .produk-gambar {
+      flex: 1 1 450px;
+      background: #f3f4f6;
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      max-height: 450px;
+      overflow: hidden;
+    }
+
+    .produk-gambar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .produk-info {
+      flex: 1 1 450px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .produk-info h2 {
+      font-size: 32px;
+      margin-bottom: 14px;
+      color: #1f2937;
+    }
+
+    .produk-info p.harga {
+      font-size: 26px;
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    .produk-info p.deskripsi {
+      margin: 24px 0;
+      color: #374151;
+      font-size: 16px;
+    }
+
+    .ukuran-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .ukuran-item {
+      padding: 10px 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      background: white;
+      user-select: none;
+    }
+
+    .ukuran-item:hover,
+    .ukuran-item:focus {
+      background: #f3f4f6;
+      outline: none;
+    }
+
+    .ukuran-item.selected {
+      border-color: #f97316;
+      background: #f97316;
+      color: white;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      padding: 12px 18px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .keranjang-button {
+      background: #f97316;
+      color: white;
+    }
+
+    .beli-button {
+      background: #ef4444;
+      color: white;
+    }
+
+    .favorit-btn {
+      background: #f3f4f6;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+
+<body>
+  <button onclick="window.history.back()" class="btn-kembali">← Kembali</button>
+
+  <div class="produk-detail">
+    <div class="produk-gambar">
+      <img id="gambarProduk" src="" alt="Gambar Produk" />
+    </div>
+
+    <div class="produk-info">
+      <div>
+        <h2 id="judulProduk"></h2>
+        <p id="ratingTerjual" style="font-size:14px; color:#000000; margin-bottom:6px;"></p>
+        <p id="hargaProduk" class="harga"></p>
+        <p id="deskripsiProduk" class="deskripsi"></p>
+
+        <label style="display: block; margin: 16px 0 8px; font-weight: 600; font-size: 16px; color: #1f2937;">
+          Pilih Ukuran:
+        </label>
+        <div id="ukuranBox" class="ukuran-box" tabindex="0"></div>
+      </div>
+
+      <div class="btn-group">
+        <button class="keranjang-button" id="btnKeranjang">🛒 Tambah ke Keranjang</button>
+        <button class="beli-button" id="btnBeliLangsung">🛍️ Beli Sekarang</button>
+        <button class="favorit-btn" id="btnFavorit"><span class="heart-icon">♡</span> Tambah Favorit</button>
+      </div>
+    </div>
+  </div>
+  <div id="ulasanProduk" style="max-width:1000px; margin:40px auto;">
+    <h3 style="font-size:22px; color:#1f2937; font-weight:600; margin-bottom:14px;">🗨️ Ulasan Pembeli</h3>
+    <div id="filterBintang" style="display:flex; overflow-x:auto; gap:10px; margin: 14px 0;"></div>
+    <div id="daftarUlasan"></div>
+  </div>
+  <div id="popupAlert" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #10b981;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+">
+    ✅ Produk dimasukkan ke keranjang!
+  </div>
+  <div id="zoomOverlay" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+">
+    <img id="zoomImage" src="" alt="Zoom Gambar"
+      style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
+  </div>
+
+  <script>
+    const query = new URLSearchParams(window.location.search);
+    const nama = query.get("produk");
+    const kode = query.get("kode");
+
+    let produk = null;
+    let ukuranTerpilih = null;
+
+    const defaultProduk = [
+      {
+        nama: "Kaos Hitam Saekano",
+        harga: 75000,
+        deskripsi:
+          "Kaos premium berbahan cotton combed 30s, adem dan menyerap keringat. Cocok untuk pecinta anime Saekano. Jahitan rapi dan tidak mudah melar.\n\n📏 Ukuran:\n- S: Panjang 65 cm x Lebar 46 cm\n- M: Panjang 68 cm x Lebar 48 cm\n- L: Panjang 71 cm x Lebar 50 cm\n- XL: Panjang 74 cm x Lebar 52 cm",
+        ukuran: "S,M,L,XL",
+        image: "9.png"
+      },
+      {
+        nama: "Kaos Putih Bleach",
+        harga: 85000,
+        deskripsi:
+          "Kaos eksklusif dengan ilustrasi karakter anime Bleach. Bahan cotton combed 30s, halus dan nyaman di kulit. Cocok untuk casual atau koleksi anime.\n\n📏 Ukuran:\n- S: Panjang 65 cm x Lebar 46 cm\n- M: Panjang 68 cm x Lebar 48 cm\n- L: Panjang 71 cm x Lebar 50 cm\n- XL: Panjang 74 cm x Lebar 52 cm",
+        ukuran: "S,M,L,XL",
+        image: "10.png"
+      },
+      {
+        nama: "Kaos Hitam Bleach",
+        harga: 60000,
+        deskripsi:
+          "Kaos hitam bergambar anime Bleach, cocok untuk kegiatan sehari-hari. Bahan cotton combed 30s, sablon awet dan tidak mudah luntur.\n\n📏 Ukuran:\n- M: Panjang 68 cm x Lebar 48 cm\n- L: Panjang 71 cm x Lebar 50 cm\n- XL: Panjang 74 cm x Lebar 52 cm",
+        ukuran: "M,L,XL",
+        image: "11.png"
+      },
+      {
+        nama: "Kaos Desain Custom",
+        harga: 100000,
+        deskripsi:
+          "Buat desain anime favoritmu sendiri! Kaos custom sablon digital DTG dengan hasil tajam. Bahan cotton combed 30s, tidak panas dan nyaman digunakan.\n\n📏 Ukuran:\n- S: Panjang 65 cm x Lebar 46 cm\n- M: Panjang 68 cm x Lebar 48 cm\n- L: Panjang 71 cm x Lebar 50 cm\n- XL: Panjang 74 cm x Lebar 52 cm\n- XXL: Panjang 77 cm x Lebar 55 cm",
+        ukuran: "S,M,L,XL,XXL",
+        image: "12.png"
+      }
+    ];
+
+    const allProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+    const adminProduk = JSON.parse(localStorage.getItem("adminProduk") || "[]");
+
+    if (allProduk.length === 0) {
+      localStorage.setItem("allProduk", JSON.stringify(defaultProduk));
+    }
+
+    const semuaProdukGabungan = [...defaultProduk, ...adminProduk, ...allProduk];
+
+    produk = semuaProdukGabungan.find(p =>
+      (kode && (p.kode === kode || p.nama === kode)) ||
+      (nama && p.nama === nama)
+    );
+
+    if (!produk) {
+      document.body.innerHTML = "<p style='text-align:center; margin-top:60px;'>❌ Produk tidak ditemukan.</p>";
+    } else {
+      document.getElementById("judulProduk").textContent = produk.nama;
+      const ratingEl = document.getElementById("ratingTerjual");
+      const allProduk = JSON.parse(localStorage.getItem("allProduk") || "[]");
+      const produkLengkap = allProduk.find(p => p.nama === produk.nama);
+      const rating = produkLengkap?.rating || "4.5";
+      const terjual = produkLengkap?.terjual || 0;
+      ratingEl.textContent = `⭐ ${rating} | Terjual ${terjual}`;
+
+      document.getElementById("hargaProduk").textContent = "Rp " + produk.harga.toLocaleString("id-ID");
+      document.getElementById("deskripsiProduk").innerHTML = produk.deskripsi.replace(/\n/g, "<br>");
+
+      const ukuranBox = document.getElementById("ukuranBox");
+      ukuranBox.innerHTML = "";
+      if (produk.ukuran) {
+        produk.ukuran.split(",").forEach(uk => {
+          const btn = document.createElement("button");
+          btn.className = "ukuran-item";
+          btn.textContent = uk.trim();
+          btn.onclick = () => {
+            document.querySelectorAll(".ukuran-item").forEach(el => el.classList.remove("selected"));
+            btn.classList.add("selected");
+            ukuranTerpilih = uk.trim();
+
+            // Tampilkan info stok
+            let infoStok = document.getElementById("infoStokUkuran");
+            if (!infoStok) {
+              infoStok = document.createElement("p");
+              infoStok.id = "infoStokUkuran";
+              infoStok.style = "margin-top: 10px; font-size: 14px; color: #4b5563;";
+              ukuranBox.parentNode.insertBefore(infoStok, ukuranBox);
+            }
+
+            // Gantilah angka di bawah sesuai real stok dari database jika tersedia
+            const stokTersedia = 20; // atau logika dari produk.stokPerUkuran[ukuranTerpilih]
+            infoStok.textContent = `Sisa stok: ${stokTersedia}`;
+          };
+
+          ukuranBox.appendChild(btn);
+        });
+      }
+
+      let imagePath = produk.image || "default-image.png";
+      if (!imagePath.startsWith("data:image") && !imagePath.includes("/")) {
+        imagePath = "images/" + imagePath;
+      }
+      document.getElementById("gambarProduk").src = imagePath;
+
+      // FAVORIT
+      const btnFavorit = document.getElementById("btnFavorit");
+      const heart = btnFavorit.querySelector(".heart-icon");
+      let favoritList = JSON.parse(localStorage.getItem("favoritList") || "[]");
+
+      if (favoritList.includes(produk.nama)) {
+        heart.textContent = "❤️";
+        btnFavorit.classList.add("active");
+      }
+
+      btnFavorit.onclick = () => {
+        if (favoritList.includes(produk.nama)) {
+          favoritList = favoritList.filter(n => n !== produk.nama);
+          heart.textContent = "♡";
+          btnFavorit.classList.remove("active");
+        } else {
+          favoritList.push(produk.nama);
+          heart.textContent = "❤️";
+          btnFavorit.classList.add("active");
+        }
+        localStorage.setItem("favoritList", JSON.stringify(favoritList));
+      };
+
+      // KERANJANG
+      document.getElementById("btnKeranjang").onclick = () => {
+        const userLogin = JSON.parse(localStorage.getItem("user") || "null");
+        if (!userLogin) {
+          tampilkanPopup("⚠️ Silakan login dulu.");
+          return;
+        }
+        if (!ukuranTerpilih) return tampilkanPopup("⚠️ Pilih ukuran dulu ya.");
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const idx = cart.findIndex(i => i.nama === produk.nama && i.ukuran === ukuranTerpilih);
+        if (idx > -1) cart[idx].qty += 1;
+        else cart.push({ nama: produk.nama, qty: 1, image: imagePath, ukuran: ukuranTerpilih });
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Hapus pemanggilan ini: catatLaporanPenjualan(produk.nama, 1, ukuranTerpilih, produk.harga);
+        tampilkanPopup("✅ Ditambahkan ke keranjang!");
+      };
+
+      // BELI LANGSUNG
+      document.getElementById("btnBeliLangsung").onclick = () => {
+        const userLogin = JSON.parse(localStorage.getItem("user") || "null");
+        if (!userLogin) {
+          tampilkanPopup("⚠️ Silakan login dulu.");
+          return;
+        }
+
+        if (!ukuranTerpilih) return tampilkanPopup("⚠️ Pilih ukuran dulu ya.");
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const idx = cart.findIndex(i => i.nama === produk.nama && i.ukuran === ukuranTerpilih);
+        if (idx > -1) cart[idx].qty += 1;
+        else cart.push({ nama: produk.nama, qty: 1, image: imagePath, ukuran: ukuranTerpilih });
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Hapus pemanggilan ini: catatLaporanPenjualan(produk.nama, 1, ukuranTerpilih, produk.harga);
+        window.location.href = "keranjang.html";
+      };
+    }
+
+
+    function tampilkanPopup(pesan) {
+      const popup = document.getElementById("popupAlert");
+      popup.textContent = pesan;
+      popup.style.display = "block";
+      popup.style.top = "50%";
+      popup.style.left = "50%";
+      popup.style.transform = "translate(-50%, -50%)";
+
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 2000);
+    }
+
+    // Fungsi catatLaporanPenjualan ini akan tetap ada, tapi hanya dipanggil di pembayaran.html
+    function catatLaporanPenjualan(namaProduk, jumlah, ukuran, harga) {
+      const laporan = JSON.parse(localStorage.getItem("laporanPenjualan") || "[]");
+      const now = new Date();
+      const user = JSON.parse(localStorage.getItem("user")) || {};
+      const pembeli = user?.name || "Guest";
+
+      laporan.push({
+        nama: namaProduk,
+        jumlah: jumlah,
+        ukuran: ukuran,
+        harga: harga,
+        subtotal: jumlah * harga,
+        pembeli: pembeli,
+        tanggal: now.toLocaleString("id-ID")
+      });
+
+      localStorage.setItem("laporanPenjualan", JSON.stringify(laporan));
+    }
+    function tampilkanUlasan(kodeProduk) {
+      const semuaUlasan = JSON.parse(localStorage.getItem("ulasanProduk") || "[]");
+      const ulasanProduk = semuaUlasan.filter(u => u.kode === kodeProduk);
+
+      const daftar = document.getElementById("daftarUlasan");
+      const filter = document.getElementById("filterBintang");
+
+      if (ulasanProduk.length === 0) {
+        daftar.innerHTML = "<p style='color:#6b7280;'>Belum ada ulasan.</p>";
+        return;
+      }
+
+      let aktif = 0;
+
+      function renderUlasan(bintang) {
+        daftar.innerHTML = ulasanProduk
+          .filter(u => u.bintang === bintang)
+          .map(u => `
+  <div style="background:white;padding:16px 20px;border-radius:10px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,0.05);color:#1f2937;">
+    <strong style="color:#111827;">${u.pembeli}</strong> - <span style="color:#f59e0b;">${"⭐".repeat(u.bintang)}</span>
+    <p style="margin:8px 0 4px; font-size:14px;">${u.ulasan}</p>
+<small style="color:#6b7280">${u.tanggal} ${u.editCount ? `(Edit ke-${u.editCount})` : ""}</small>
+
+${u.balasan ? `
+  <div style="margin-top:10px; padding:10px; background:#f1f5f9; border-left:4px solid #3b82f6; border-radius:6px;">
+    <strong style="color:#3b82f6;">Balasan Admin:</strong>
+    <p style="margin:6px 0 0; font-size:14px;">${u.balasan}</p>
+  </div>` : ""}
+
+  </div>
+`).join("");
+
+      }
+
+      filter.innerHTML = "";
+      for (let b = 5; b >= 1; b--) {
+        const btn = document.createElement("button");
+        btn.textContent = `${b} ⭐`;
+        btn.style = "padding:6px 12px; border:none; background:#f3f4f6; border-radius:6px; cursor:pointer;";
+        btn.onclick = () => renderUlasan(b);
+        filter.appendChild(btn);
+        if (aktif === 0) {
+          renderUlasan(b);
+          aktif = 1;
+        }
+      }
+    }
+
+    // panggil ini di bagian bawah setelah load produk:
+    if (produk) {
+      tampilkanUlasan(produk.kode || produk.nama);
+    }
+
+    // Zoom Gambar
+    const gambarProduk = document.getElementById("gambarProduk");
+    const zoomOverlay = document.getElementById("zoomOverlay");
+    const zoomImage = document.getElementById("zoomImage");
+
+    gambarProduk.addEventListener("click", () => {
+      zoomImage.src = gambarProduk.src;
+      zoomOverlay.style.display = "flex";
+    });
+
+    zoomOverlay.addEventListener("click", () => {
+      zoomOverlay.style.display = "none";
+    });
+
+  </script>
+
+</body>
+
+</html>

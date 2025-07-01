@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Voucher User</title>
+  <link rel="stylesheet" href="styleindex.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: #f3f4f6;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-container {
+      background: #1e293b;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button {
+      background: #10b981;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #059669;
+    }
+
+    #infoVoucherUser {
+      margin-top: 14px;
+      font-weight: bold;
+      color: #facc15;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🎁 Tambah Jatah Voucher User</h1>
+
+  <div class="form-container">
+    <label for="emailUserVoucher">Email User</label>
+    <input type="email" id="emailUserVoucher" placeholder="contoh@email.com" />
+
+    <label for="jumlahVoucher">Tambah Jatah Berapa Kali</label>
+    <input type="number" id="jumlahVoucher" value="1" min="1" />
+
+    <button onclick="tambahJatahVoucher()">➕ Tambah Jatah Voucher</button>
+
+    <p id="infoVoucherUser"></p>
+  </div>
+
+  <script>
+    function tambahJatahVoucher() {
+      const email = document.getElementById("emailUserVoucher").value.trim();
+      const tambahan = parseInt(document.getElementById("jumlahVoucher").value);
+      const info = document.getElementById("infoVoucherUser");
+
+      if (!email || isNaN(tambahan) || tambahan <= 0) {
+        alert("❌ Masukkan email dan jumlah yang valid.");
+        return;
+      }
+
+      const voucherUser = JSON.parse(localStorage.getItem("voucherUser") || "{}");
+      voucherUser[email] = (voucherUser[email] || 0) + tambahan;
+      localStorage.setItem("voucherUser", JSON.stringify(voucherUser));
+
+      info.textContent = `✅ Voucher ditambahkan untuk ${email}. Total: ${voucherUser[email]}`;
+
+      setTimeout(() => {
+        window.location.href = "admin.html";
+      }, 1500);
+    }
+
+  </script>
+</body>
+
+</html>

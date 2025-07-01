@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Daftar Bukti Transfer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0f172a;
+      color: #f3f4f6;
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fbbf24;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+    }
+
+    .bukti-item {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .bukti-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .bukti-item img {
+      max-width: 300px;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 20px;
+      border: 2px solid #334155;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .bukti-info {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .bukti-info p {
+      margin: 8px 0;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bukti-info p strong {
+      color: #94a3b8;
+      min-width: 80px;
+      display: inline-block;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      background: #10b981;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .download-btn:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    .kembali-btn {
+      background: #ef4444;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      margin-top: 40px;
+      display: block;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .kembali-btn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    .no-bukti {
+      text-align: center;
+      color: #f87171;
+      font-size: 1.1em;
+      margin-top: 50px;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 600px) {
+      .bukti-item {
+        padding: 15px;
+      }
+
+      .bukti-info p {
+        font-size: 0.9em;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bukti-info p strong {
+        min-width: unset;
+      }
+
+      .download-btn,
+      .kembali-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+    }
+
+    .filter-wrapper {
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #1e293b;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-wrapper label {
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+
+    .filter-wrapper select {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      font-size: 1em;
+      transition: background 0.3s ease;
+    }
+
+    .filter-wrapper select:hover {
+      background: #475569;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-wrapper">
+    <label for="filterMetode" style="display:block;margin-bottom:10px;color:#fbbf24;font-weight:bold;">
+      🔍 Filter Metode Pembayaran:
+    </label>
+    
+
+    <div class="filter-wrapper">
+      <label for="filterMetode">🎯 Filter Metode Pembayaran:</label>
+      <select id="filterMetode" onchange="tampilkanData()">
+        <option value="semua">Semua Metode</option>
+        <option value="Transfer Bank">Transfer Bank</option>
+        <option value="E-Wallet">E-Wallet</option>
+        <option value="COD">COD</option>
+      </select>
+    </div>
+
+    <h1>📦 Bukti Transfer dari User</h1>
+    <div id="listBukti"></div>
+    <button class="kembali-btn" onclick="window.location.href='admin.html'">🔙 Kembali ke Admin</button>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.role !== "admin") {
+      alert("Akses hanya untuk admin.");
+      window.location.href = "index.html";
+    }
+
+    const semuaBukti = JSON.parse(localStorage.getItem("semuaBuktiPembayaran") || "[]");
+    const container = document.getElementById("listBukti");
+
+    function tampilkanData() {
+      const filter = document.getElementById("filterMetode")?.value || "semua";
+      container.innerHTML = ""; // bersihkan tampilan
+
+      const dataDitampilkan = semuaBukti.filter(item => {
+        return filter === "semua" || item.metode === filter;
+      });
+
+      if (!dataDitampilkan.length) {
+        container.innerHTML = "<p class='no-bukti'>Tidak ada bukti untuk metode tersebut.</p>";
+        return;
+      }
+
+      dataDitampilkan.reverse().forEach((bukti, index) => {
+        const el = document.createElement("div");
+        el.className = "bukti-item";
+        el.innerHTML = `
+        <div class="bukti-info">
+          <p><strong><span style="color:#fcd34d;">🧍</span> Nama:</strong> ${bukti.nama}</p>
+          <p><strong><span style="color:#60a5fa;">📧</span> Email:</strong> ${bukti.email}</p>
+          <p><strong><span style="color:#818cf8;">📍</span> Alamat:</strong> ${bukti.alamat}</p>
+          <p><strong><span style="color:#a78bfa;">📞</span> Telp:</strong> ${bukti.telp}</p>
+          <p><strong><span style="color:#fb7185;">💳</span> Metode:</strong> ${bukti.metode}</p>
+          <p><strong><span style="color:#2dd4bf;">🕒</span> Waktu:</strong> ${bukti.waktu}</p>
+        </div>
+        <img src="${bukti.bukti}" alt="Bukti Transfer ${index + 1}" onerror="this.src='fallback.jpg';" />
+        <a class="download-btn" href="${bukti.bukti}" download="bukti_transfer_${index + 1}.jpg">⬇️ Unduh Bukti</a>
+      `;
+        container.appendChild(el);
+      });
+    }
+
+    // Jalankan saat halaman selesai dimuat
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!semuaBukti.length) {
+        container.innerHTML = "<p class='no-bukti'>Belum ada bukti pembayaran dikirim.</p>";
+      } else {
+        tampilkanData();
+      }
+    });
+  </script>
+
+</body>
+
+</html>
